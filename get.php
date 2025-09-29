@@ -30,10 +30,7 @@ define('WS_SERVER', false);
 require('../../config.php');
 require('locallib.php');
 
-/*
-ini_set('display_errors',1);
-error_reporting(E_ALL);
-*/
+require_login();
 
 $user = get_admin();
 \core\session\manager::set_user($user);

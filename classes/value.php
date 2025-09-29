@@ -42,21 +42,21 @@ class value {
      *
      * @var bool
      */
-    protected $only_info = false;
+    protected $onlyInfo = false;
 
     /**
      * Whether the field is only allowed in GET API.
      *
      * @var bool
      */
-    protected $only_get = false;
+    protected $onlyGet = false;
 
     /**
      * Whether the field should be checked specially.
      *
      * @var bool
      */
-    protected $to_check = false;
+    protected $toCheck = false;
 
     /**
      * Error status of the field.
@@ -79,8 +79,8 @@ class value {
      *
      * @return self
      */
-    public function only_info(): self {
-        $this->only_info = true;
+    public function onlyInfo(): self {
+        $this->onlyInfo = true;
         return $this;
     }
 
@@ -89,8 +89,8 @@ class value {
      *
      * @return self
      */
-    public function only_get(): self {
-        $this->only_get = true;
+    public function onlyGet(): self {
+        $this->onlyGet = true;
         return $this;
     }
 
@@ -99,8 +99,8 @@ class value {
      *
      * @return self
      */
-    public function to_check(): self {
-        $this->to_check = true;
+    public function toCheck(): self {
+        $this->toCheck = true;
         return $this;
     }
 
@@ -110,7 +110,7 @@ class value {
      * @return mixed|null
      */
     public function get() {
-        if ($this->only_info) {
+        if ($this->onlyInfo) {
             return null;
         }
         if ($this->value === 0 || $this->value === "0") {
@@ -125,11 +125,11 @@ class value {
     /**
      * Attempt to update the value (not allowed).
      *
-     * @param mixed $new_value New value.
+     * @param mixed $newValue New value.
      * @param mixed $previous Previous value (optional).
      * @return void
      */
-    public function update($new_value, $previous = ''): void {
+    public function update($newValue, $previous = ''): void {
         // Simple values cannot be updated.
         $this->error = 'notfound';
     }
@@ -139,7 +139,7 @@ class value {
      *
      * @return string|null
      */
-    public function get_errors(): ?string {
+    public function getErrors(): ?string {
         if ($this->error !== 'ok') {
             return $this->error;
         }

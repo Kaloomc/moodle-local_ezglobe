@@ -34,16 +34,16 @@ defined('MOODLE_INTERNAL') || die();
  */
 function local_ezglobe_return($answer) {
     // Clear any buffered output (optional).
-    // ob_get_clean();
+    // ob_get_clean();.
 
     // Set content type to JSON (optional).
-    // header('Content-Type: application/json');
+    // header('Content-Type: application/json');.
 
     if (empty($answer)) {
         $answer = ['code' => 'ko'];
-    } elseif (is_string($answer)) {
+    } else if (is_string($answer)) {
         $answer = ['code' => 'ko', 'msg' => $answer];
-    } elseif (!is_array($answer) && !is_object($answer)) {
+    } else if (!is_array($answer) && !is_object($answer)) {
         $answer = ['code' => 'ko'];
     }
 
@@ -67,10 +67,10 @@ function local_ezglobe_return($answer) {
  */
 function local_ezglobe_error($code = 'error', $message = '') {
     // Clear any buffered output (optional).
-    // ob_get_clean();
+    // ob_get_clean();.
 
     // Set content type to JSON (optional).
-    // header('Content-Type: application/json');
+    // header('Content-Type: application/json');.
 
     $answer = ['code' => $code];
 

@@ -37,7 +37,7 @@ class database {
      *
      * @var array<string,string>
      */
-    protected static $id_names = [];
+    protected static $idnames = [];
 
     /**
      * Get the id field name for a table.
@@ -45,9 +45,9 @@ class database {
      * @param string $table Table name.
      * @return string
      */
-    public static function id_name(string $table): string {
-        if (isset(static::$id_names[$table])) {
-            return static::$id_names[$table];
+    public static function idname(string $table): string {
+        if (isset(static::$idnames[$table])) {
+            return static::$idnames[$table];
         }
         return 'id';
     }
@@ -61,10 +61,10 @@ class database {
      * @return object|null
      */
     public static function get(string $table, $value, ?string $name = null) {
-        if (is_null($name)) {
-            $name = static::id_name($table);
+        if ($name === null) {
+            $name = static::idname($table);
         }
-        return static::load_one("SELECT * FROM {{$table}} WHERE `$name` = :$name", [$name => $value]);
+        return static::loadOne("SELECT * FROM {{$table}} WHERE {$name} = :{$name}", [$name => $value]);
     }
 
     /**
@@ -75,34 +75,31 @@ class database {
      * @param string|null $name Field name (default id field).
      * @return array<int,object>
      */
-    public static function get_all(string $table, $value = null, ?string $name = null): array {
-        if (is_null($name)) {
-            $name = static::id_name($table);
+    public static function getAll(string $table, $value = null, ?string $name = null): array {
+        if ($name === null) {
+            $name = static::idname($table);
         }
-        if (is_null($value)) {
-            return static::load_multiple("SELECT * FROM {{$table}}");
+        if ($value === null) {
+            return static::loadMultiple("SELECT * FROM {{$table}}");
         }
-        return static::load_multiple("SELECT * FROM {{$table}} WHERE `$name` = :$name", [$name => $value]);
+        return static::loadMultiple("SELECT * FROM {{$table}} WHERE {$name} = :{$name}", [$name => $value]);
     }
 
     /**
      * Load one record using SQL.
      *
      * @param string $sql SQL query.
-     * @param array $param Parameters.
+     * @param array $params Parameters.
      * @return object|null
      */
-    public static function load_one(string $sql, array $param = []) {
+    public static function loadOne(string $sql, array $params = []) {
         global $DB;
         try {
-            $result = $DB->get_record_sql($sql, $param);
-            if (empty($result)) {
-                return null;
-            }
-            return $result;
+            $result = $DB->get_record_sql($sql, $params);
+            return $result ?: null;
         } catch (\dml_exception $ex) {
             return null;
-        } catch (\Exception $ex) {
+        } catch (\Throwable $ex) {
             return null;
         }
     }
@@ -111,17 +108,16 @@ class database {
      * Load multiple records using SQL.
      *
      * @param string $sql SQL query.
-     * @param array $param Parameters.
+     * @param array $params Parameters.
      * @return array<int,object>
      */
-    public static function load_multiple(string $sql, array $param = []): array {
+    public static function loadMultiple(string $sql, array $params = []): array {
         global $DB;
         try {
-            $result = $DB->get_records_sql($sql, $param);
-            return (array) $result;
+            return (array) $DB->get_records_sql($sql, $params);
         } catch (\dml_exception $ex) {
             return [];
-        } catch (\Exception $ex) {
+        } catch (\Throwable $ex) {
             return [];
         }
     }
@@ -131,28 +127,24 @@ class database {
      *
      * @param string $table Table name.
      * @param int $id Record id.
-     * @param string $field_name Field name.
-     * @param mixed $new_value New value.
+     * @param string $fieldName Field name.
+     * @param mixed $newValue New value.
      * @return bool Success.
      */
-    public static function update(string $table, int $id, string $field_name, $new_value): bool {
+    public static function update(string $table, int $id, string $fieldName, $newValue): bool {
         global $DB;
 
         $object = new \stdClass();
-        $id_name = static::id_name($table);
-        $object->$id_name = $id;
-        $object->$field_name = $new_value;
+        $idname = static::idname($table);
+        $object->$idname = $id;
+        $object->$fieldName = $newValue;
 
         try {
             $DB->update_record($table, $object);
             return true;
-        } catch (\coding_exception $e) {
-            return false;
-        } catch (\dml_write_exception $e) {
-            return false;
         } catch (\dml_exception $ex) {
             return false;
-        } catch (\Exception $ex) {
+        } catch (\Throwable $ex) {
             return false;
         }
     }
