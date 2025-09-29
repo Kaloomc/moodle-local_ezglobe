@@ -15,9 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Class to manage the activity "questionnaire"
+ * Entity class for the "questionnaire" activity.
  *
  * @package    local_ezglobe
+ * @subpackage entities
  * @copyright  2025 CBCD EURL & EzGlobe
  * @author     Christophe Blanchot <cblanchot@cbcd.fr>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -25,20 +26,47 @@
 
 namespace local_ezglobe\entities;
 
-class questionnaire extends \local_ezglobe\entity {
-    
-    protected $mainTable = "questionnaire";       // Table name
-    
-    protected function defineFields() {
-        $this->addFields("name", "intro");
-        $this->fields["name"]->gradebook();
-        $this->linkTable("questionnaire_survey", [ "id" => "sid" ], 
-                [ "title", "subtitle", "info", "thank_head", "thank_body", "feedbacknotes"]);
-        $this->addEntitiesFromTable("questions",  "questionnaire_question", "questionnaire_question", [ "surveyid" => "sid"]);
-        $this->addEntitiesFromTable("sections",  "questionnaire_section", "questionnaire_fb_sections", [ "surveyid" => "sid"]);
+use local_ezglobe\entity;
+
+/**
+ * Represents a questionnaire activity entity for API handling.
+ */
+class questionnaire extends entity {
+
+    /**
+     * The main DB table for questionnaire activities.
+     *
+     * @var string
+     */
+    protected $main_table = 'questionnaire';
+
+    /**
+     * Define the fields and related entities for the questionnaire activity.
+     *
+     * @return void
+     */
+    protected function define_fields(): void {
+        $this->addFields('name', 'intro');
+        $this->fields['name']->gradebook();
+
+        $this->linkTable(
+            'questionnaire_survey',
+            ['id' => 'sid'],
+            ['title', 'subtitle', 'info', 'thank_head', 'thank_body', 'feedbacknotes']
+        );
+
+        $this->addEntitiesFromTable(
+            'questions',
+            'questionnaire_question',
+            'questionnaire_question',
+            ['surveyid' => 'sid']
+        );
+
+        $this->addEntitiesFromTable(
+            'sections',
+            'questionnaire_section',
+            'questionnaire_fb_sections',
+            ['surveyid' => 'sid']
+        );
     }
-
-    
 }
-
-

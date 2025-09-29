@@ -15,9 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Class to manage the activity "workshop"
+ * Entity class for the workshop activity.
  *
  * @package    local_ezglobe
+ * @subpackage entities
  * @copyright  2025 CBCD EURL & EzGlobe
  * @author     Christophe Blanchot <cblanchot@cbcd.fr>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -25,20 +26,31 @@
 
 namespace local_ezglobe\entities;
 
-class workshop extends \local_ezglobe\entity {
-    
-    protected $mainTable = "workshop";       // Table name
-    
-    protected function defineFields() {
-        $this->addFields("name", "intro", "instructauthors", "instructreviewers", "conclusion"); 
-        $this->fields["name"]->gradebook();
-        $this->addEntitiesFromTable("accumulatives",  ["description"], "workshopform_accumulative", "workshopid");
-        $this->addEntitiesFromTable("aspects",  ["description"], "workshopform_comments", "workshopid");
-        $this->addEntitiesFromTable("numerrors",  ["description", "grade0", "grade1"], "workshopform_numerrors", "workshopid");
-        $this->addEntitiesFromTable("rubrics",  "workshop_rubric", "workshopform_rubric", "workshopid");
+use local_ezglobe\entity;
+
+/**
+ * Represents a workshop entity for API handling.
+ */
+class workshop extends entity {
+
+    /**
+     * The main DB table for workshop entities.
+     *
+     * @var string
+     */
+    protected $main_table = 'workshop';
+
+    /**
+     * Define the fields and related entities for workshop.
+     *
+     * @return void
+     */
+    protected function define_fields(): void {
+        $this->addFields('name', 'intro', 'instructauthors', 'instructreviewers', 'conclusion');
+        $this->fields['name']->gradebook();
+        $this->addEntitiesFromTable('accumulatives', ['description'], 'workshopform_accumulative', 'workshopid');
+        $this->addEntitiesFromTable('aspects', ['description'], 'workshopform_comments', 'workshopid');
+        $this->addEntitiesFromTable('numerrors', ['description', 'grade0', 'grade1'], 'workshopform_numerrors', 'workshopid');
+        $this->addEntitiesFromTable('rubrics', 'workshop_rubric', 'workshopform_rubric', 'workshopid');
     }
-
-    
 }
-
-

@@ -15,28 +15,47 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Class to manage the entity "course"
+ * Entity class for course sections.
  *
  * @package    local_ezglobe
+ * @subpackage entities
  * @copyright  2025 CBCD EURL & EzGlobe
  * @author     Christophe Blanchot <cblanchot@cbcd.fr>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
 namespace local_ezglobe\entities;
 
-class section extends \local_ezglobe\entity {
-    
-    protected $mainTable = "course_sections";       // Table name
-    
-    protected function defineFields() {
-        $this->addFields("name", "summary");
+use local_ezglobe\entity;
+
+/**
+ * Represents a course section entity.
+ */
+class section extends entity {
+
+    /**
+     * The main DB table for the section entity.
+     *
+     * @var string
+     */
+    protected $main_table = 'course_sections';
+
+    /**
+     * Define the fields and related entities for the course section.
+     *
+     * @return void
+     */
+    protected function define_fields(): void {
+        $this->addFields('name', 'summary');
+
         $modules = [];
-        foreach(explode(",", $this->record("sequence")) as $cmid) {
-            $moduleName = $this->getModuleName($cmid);
-            if (!empty($moduleName)) $modules[$cmid] = $moduleName;
+        foreach (explode(',', $this->record('sequence')) as $cmid) {
+            $module_name = $this->getModuleName($cmid);
+            if (!empty($module_name)) {
+                $modules[$cmid] = $module_name;
+            }
         }
-        $this->addDirect("modules", $modules)->onlyGet();
-    }    
+
+        $this->addDirect('modules', $modules)->onlyGet();
+    }
 }

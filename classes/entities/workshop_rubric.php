@@ -15,9 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Class to manage the entity "workshop_rubric"
+ * Entity class for workshop rubric.
  *
  * @package    local_ezglobe
+ * @subpackage entities
  * @copyright  2025 CBCD EURL & EzGlobe
  * @author     Christophe Blanchot <cblanchot@cbcd.fr>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -25,16 +26,27 @@
 
 namespace local_ezglobe\entities;
 
-class workshop_rubric extends \local_ezglobe\entity {
-    
-    protected $mainTable = "workshopform_rubric";       // Table name
-    
-    protected function defineFields() {
-        $this->addFields("description");
-        $this->addEntitiesFromTable("levels",  [ "definition"], "workshopform_rubric_levels", "dimensionid");
+use local_ezglobe\entity;
+
+/**
+ * Represents a Workshop rubric entity.
+ */
+class workshop_rubric extends entity {
+
+    /**
+     * The main DB table for the workshop rubric entity.
+     *
+     * @var string
+     */
+    protected $main_table = 'workshopform_rubric';
+
+    /**
+     * Define the fields and related entities for the workshop rubric.
+     *
+     * @return void
+     */
+    protected function define_fields(): void {
+        $this->addFields('description');
+        $this->addEntitiesFromTable('levels', ['definition'], 'workshopform_rubric_levels', 'dimensionid');
     }
-
-    
 }
-
-

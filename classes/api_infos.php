@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Class to manage api with "infos" command
+ * API class to handle the "infos" command.
  *
  * @package    local_ezglobe
  * @copyright  2025 CBCD EURL & EzGlobe
@@ -24,28 +24,37 @@
  */
 
 namespace local_ezglobe;
-use \DateTime;
-use \stdClass;
 
+use DateTime;
+use stdClass;
+
+/**
+ * Implementation of the API command "infos".
+ */
 class api_infos extends api {
-    
-    function __construct($param) {
-        $this->mode = "infos";
+
+    /**
+     * Constructor.
+     *
+     * @param array|stdClass $param Parameters passed to the API.
+     */
+    public function __construct($param) {
+        $this->mode = 'infos';
         $this->param = (object) $param;
     }
 
-
-    
-    protected function do() {
-        // Process the precise action : prepare the informations
-        // Return a std object with code and other properties
-        
+    /**
+     * Execute the "infos" API action.
+     *
+     * @return stdClass|null
+     */
+    protected function do(): ?stdClass {
         $this->answer->version = $this->version();
-        $this->answer->previousVerification = (get_config("local_ezglobe", "previous") == 1 ? 1 : 0);
-        $this->answer->fieldsExtension = (dbinfos::canExtend() ? 1 : 0);
-        $this->answer->fieldsSize = (dbinfos::canTechnicalExtend() ? 1 : 0);
-        $this->answer->gradebook = (get_config("local_ezglobe", "gradebook") == 1 ? 1 : 0);
+        $this->answer->previousverification = (get_config('local_ezglobe', 'previous') == 1 ? 1 : 0);
+        $this->answer->fieldsextension = (dbinfos::canExtend() ? 1 : 0);
+        $this->answer->fieldssize = (dbinfos::canTechnicalExtend() ? 1 : 0);
+        $this->answer->gradebook = (get_config('local_ezglobe', 'gradebook') == 1 ? 1 : 0);
+
+        return $this->answer;
     }
- 
-    
 }

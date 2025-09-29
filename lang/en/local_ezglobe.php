@@ -28,7 +28,7 @@ defined('MOODLE_INTERNAL') || die();
 $string['pluginname'] = 'ezGlobe : API to edit texts';
 
 
-// Configuration 
+// Configuration.
 $string['config:title'] = 'ezGlobe plugin configuration';
 $string['config:open:label'] = 'Enable API';
 $string['config:open:desc'] = "Answer 'Yes' to enable the API, 'no' to suspend it.";

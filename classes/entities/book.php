@@ -15,9 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Class to manage the activity "book"
+ * Entity class for the Book activity.
  *
  * @package    local_ezglobe
+ * @subpackage entities
  * @copyright  2025 CBCD EURL & EzGlobe
  * @author     Christophe Blanchot <cblanchot@cbcd.fr>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -25,17 +26,28 @@
 
 namespace local_ezglobe\entities;
 
-class book extends \local_ezglobe\entity {
-    
-    protected $mainTable = "book";       // Table name
-    
-    protected function defineFields() {
-        $this->addFields("name", "intro");
-        $this->fields["name"]->gradebook();
-        $this->addEntitiesFromTable("chapters",  [ "title", "content"], "book_chapters", "bookid");
+use local_ezglobe\entity;
+
+/**
+ * Represents a Book activity entity.
+ */
+class book extends entity {
+
+    /**
+     * The main DB table for the book activity.
+     *
+     * @var string
+     */
+    protected $main_table = 'book';
+
+    /**
+     * Define the fields and related entities for the book.
+     *
+     * @return void
+     */
+    protected function define_fields(): void {
+        $this->addFields('name', 'intro');
+        $this->fields['name']->gradebook();
+        $this->addEntitiesFromTable('chapters', ['title', 'content'], 'book_chapters', 'bookid');
     }
-
-    
 }
-
-

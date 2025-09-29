@@ -15,9 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Class to manage the activity "page"
+ * Entity class for the "page" activity.
  *
  * @package    local_ezglobe
+ * @subpackage entities
  * @copyright  2025 CBCD EURL & EzGlobe
  * @author     Christophe Blanchot <cblanchot@cbcd.fr>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -25,17 +26,27 @@
 
 namespace local_ezglobe\entities;
 
-class page extends \local_ezglobe\entity {
-    
-    protected $mainTable = "page";       // Table name
-    
-    protected function defineFields() {
-        $this->addFields("name", "intro", "content");
-        $this->fields["name"]->gradebook();
+use local_ezglobe\entity;
 
+/**
+ * Represents a page activity entity.
+ */
+class page extends entity {
+
+    /**
+     * The main DB table for the page entity.
+     *
+     * @var string
+     */
+    protected $main_table = 'page';
+
+    /**
+     * Define the fields and relationships for the entity.
+     *
+     * @return void
+     */
+    protected function define_fields(): void {
+        $this->addFields('name', 'intro', 'content');
+        $this->fields['name']->gradebook();
     }
-
-    
 }
-
-

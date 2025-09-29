@@ -15,9 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Class to manage the entity "questionnaire_question"
+ * Entity class for questionnaire questions.
  *
  * @package    local_ezglobe
+ * @subpackage entities
  * @copyright  2025 CBCD EURL & EzGlobe
  * @author     Christophe Blanchot <cblanchot@cbcd.fr>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -25,16 +26,32 @@
 
 namespace local_ezglobe\entities;
 
-class questionnaire_question extends \local_ezglobe\entity {
-    
-    protected $mainTable = "questionnaire_question";       // Table name
-    
-    protected function defineFields() {
-        $this->addFields("content", "extradata");
-        $this->addEntitiesFromTable("choices",  [ "content"], "questionnaire_quest_choice", "question_id");
+use local_ezglobe\entity;
+
+/**
+ * Represents a questionnaire question entity.
+ */
+class questionnaire_question extends entity {
+
+    /**
+     * The main DB table for the questionnaire question entity.
+     *
+     * @var string
+     */
+    protected $main_table = 'questionnaire_question';
+
+    /**
+     * Define the fields and related entities.
+     *
+     * @return void
+     */
+    protected function define_fields(): void {
+        $this->addFields('content', 'extradata');
+        $this->addEntitiesFromTable(
+            'choices',
+            ['content'],
+            'questionnaire_quest_choice',
+            'question_id'
+        );
     }
-
-    
 }
-
-

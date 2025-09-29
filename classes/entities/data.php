@@ -15,9 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Class to manage the activity "data"
+ * Entity class for the "data" activity.
  *
  * @package    local_ezglobe
+ * @subpackage entities
  * @copyright  2025 CBCD EURL & EzGlobe
  * @author     Christophe Blanchot <cblanchot@cbcd.fr>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -25,18 +26,28 @@
 
 namespace local_ezglobe\entities;
 
-class data extends \local_ezglobe\entity {
-    
-    protected $mainTable = "data";       // Table name
-    
-    protected function defineFields() {
-        $this->addFields("name", "intro");
-        $this->fields["name"]->gradebook();
-        $this->addEntitiesFromTable("fields",  [ "name", "description"], "data_fields", "fieldid");
+use local_ezglobe\entity;
 
+/**
+ * Represents a database activity entity.
+ */
+class data extends entity {
+
+    /**
+     * The main DB table for the entity.
+     *
+     * @var string
+     */
+    protected $main_table = 'data';
+
+    /**
+     * Define the fields and relationships for the entity.
+     *
+     * @return void
+     */
+    protected function define_fields(): void {
+        $this->addFields('name', 'intro');
+        $this->fields['name']->gradebook();
+        $this->addEntitiesFromTable('fields', ['name', 'description'], 'data_fields', 'fieldid');
     }
-
-    
 }
-
-

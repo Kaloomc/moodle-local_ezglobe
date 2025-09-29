@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Class to manage fields
+ * Class to manage fields.
  *
  * @package    local_ezglobe
  * @copyright  2025 CBCD EURL & EzGlobe
@@ -25,133 +25,280 @@
 
 namespace local_ezglobe;
 
+/**
+ * Represents a field with validation, updates, and gradebook sync.
+ */
 class field {
-    
-    protected $table;       // table name
-    protected $name;        // field name
-    protected $id;          // record id
-    protected $value;       // value
-    protected $onlyInfo = false;
-    protected $onlyGet = false;
-    protected $toCheck = false;
-    protected $gradebook = false;       // True is this field has to be synchronised with gradebook
-    
+
+    /** @var string Table name. */
+    protected $table;
+
+    /** @var string Field name. */
+    protected $name;
+
+    /** @var int Record ID. */
+    protected $id;
+
+    /** @var mixed Field value. */
+    protected $value;
+
+    /** @var bool Restrict to info mode. */
+    protected $onlyinfo = false;
+
+    /** @var bool Restrict to get mode. */
+    protected $onlyget = false;
+
+    /** @var bool Mark field as requiring checks. */
+    protected $tocheck = false;
+
+    /** @var bool Whether this field is synchronised with gradebook. */
+    protected $gradebook = false;
+
+    /** @var string Error status. */
     protected $error = "ok";
-    
-    
-    // Parameters about updating
-    static protected $previousVerification = false;
-    static protected $extend = false;
-    static protected $updateGradebook = false;
-    
-    
-    static function features($previousVerification, $extend, $updateGradebook ) {
-        if (get_config("local_ezglobe", "previous") == 1 and $previousVerification == 1) static::$previousVerification = true;
-        else static::$previousVerification = false;
-        if (dbinfos::canExtend() and $extend == 1) static::$extend = true;
-        else static::$extend = false;
-        if (get_config("local_ezglobe", "gradebook") == 1 and $updateGradebook == 1) static::$updateGradebook = true;
+
+    /** @var bool Enable previous verification. */
+    protected static $previousverification = false;
+
+    /** @var bool Allow field length extension. */
+    protected static $extend = false;
+
+    /** @var bool Enable gradebook updates. */
+    protected static $updategradebook = false;
+
+    /**
+     * Configure global features.
+     *
+     * @param bool $previousverification Enable previous verification.
+     * @param bool $extend Enable extension of fields.
+     * @param bool $updategradebook Enable gradebook sync.
+     */
+    public static function features($previousverification, $extend, $updategradebook): void {
+        if (get_config("local_ezglobe", "previous") == 1 && $previousverification == 1) {
+            static::$previousverification = true;
+        } else {
+            static::$previousverification = false;
+        }
+
+        if (dbinfos::can_extend() && $extend == 1) {
+            static::$extend = true;
+        } else {
+            static::$extend = false;
+        }
+
+        if (get_config("local_ezglobe", "gradebook") == 1 && $updategradebook == 1) {
+            static::$updategradebook = true;
+        }
     }
-    
-    function __construct($value = null, $table = null, $id = null, $name = null) {
+
+    /**
+     * Constructor.
+     *
+     * @param mixed $value Field value.
+     * @param string|null $table Table name.
+     * @param int|null $id Record ID.
+     * @param string|null $name Field name.
+     */
+    public function __construct($value = null, ?string $table = null, ?int $id = null, ?string $name = null) {
         $this->table = $table;
         $this->id = $id;
         $this->name = $name;
 
-        if (is_array($value) and isset($value[$name])) $this->value = $value[$name];
-        else if (is_object($value) and isset($value->$name)) $this->value = $value->$name;
-        else if (is_object($value) or is_array($value)) $this->value = null;
-        else $this->value = $value;
+        if (is_array($value) && isset($value[$name])) {
+            $this->value = $value[$name];
+        } else if (is_object($value) && isset($value->$name)) {
+            $this->value = $value->$name;
+        } else if (is_object($value) || is_array($value)) {
+            $this->value = null;
+        } else {
+            $this->value = $value;
+        }
     }
 
-    function onlyInfo() {
-        $this->onlyInfo = true;
+    /** @return self */
+    public function onlyinfo(): self {
+        $this->onlyinfo = true;
         return $this;
     }
 
-    function onlyGet() {
-        $this->onlyGet = true;
+    /** @return self */
+    public function onlyget(): self {
+        $this->onlyget = true;
         return $this;
     }
 
-    function toCheck() {
-        $this->toCheck = true;
+    /** @return self */
+    public function tocheck(): self {
+        $this->tocheck = true;
         return $this;
     }
-    
-    function gradebook() {
+
+    /** @return self */
+    public function gradebook(): self {
         $this->gradebook = true;
         return $this;
     }
-    
-    
-    function get() {
-        // Return value of field if it's allowed for GET API
-        if ($this->onlyInfo) return null;
-        if ($this->value === 0 or $this->value === "0") return 0;
-        if (empty($this->value)) return null;
+
+    /**
+     * Get value for GET API.
+     *
+     * @return mixed|null
+     */
+    public function get() {
+        if ($this->onlyinfo) {
+            return null;
+        }
+        if ($this->value === 0 || $this->value === "0") {
+            return 0;
+        }
+        if (empty($this->value)) {
+            return null;
+        }
         return $this->value;
-        
     }
-    
-    protected function error($error = "error") {
+
+    /**
+     * Set error state.
+     *
+     * @param string $error Error code.
+     * @return bool Always false.
+     */
+    protected function seterror(string $error = "error"): bool {
         $this->error = $error;
         return false;
     }
-    
-    function update($newValue, $previous = "") {
-        if ( $this->onlyGet or $this->onlyInfo) return $this->error("notfound");
-        if ( empty($newValue) or empty(trim($newValue)) 
-                or empty($this->value) or empty(trim($this->value))) return $this->error("empty");
-        if ( ! $this->checkPrevious($previous)) return $this->error("previous");
-        if ( ! $this->checkAndExtend(mb_strlen($newValue))) return $this->error("toolong");
-        if (!database::update($this->table, $this->id, $this->name, $newValue)) return $this->error("error");
-        if ($this->gradebook and static::$updateGradebook) $this->updateGradebook($newValue);
-        return $this->error == "ok";
-        
+
+    /**
+     * Update field value.
+     *
+     * @param mixed $newvalue New value.
+     * @param string $previous Previous value.
+     * @return bool
+     */
+    public function update($newvalue, string $previous = ""): bool {
+        if ($this->onlyget || $this->onlyinfo) {
+            return $this->seterror("notfound");
+        }
+
+        if (empty($newvalue) || empty(trim((string) $newvalue)) ||
+            empty($this->value) || empty(trim((string) $this->value))) {
+            return $this->seterror("empty");
+        }
+
+        if (!$this->check_previous($previous)) {
+            return $this->seterror("previous");
+        }
+
+        if (!$this->check_and_extend(mb_strlen($newvalue))) {
+            return $this->seterror("toolong");
+        }
+
+        if (!database::update($this->table, $this->id, $this->name, $newvalue)) {
+            return $this->seterror("error");
+        }
+
+        if ($this->gradebook && static::$updategradebook) {
+            $this->update_gradebook($newvalue);
+        }
+
+        return $this->error === "ok";
     }
-    
-    function getErrors() {
-        // Return all errors in the tree
-        if ($this->error != "ok") return $this->error;
+
+    /**
+     * Get errors if any.
+     *
+     * @return string|null
+     */
+    public function geterrors(): ?string {
+        if ($this->error !== "ok") {
+            return $this->error;
+        }
+        return null;
     }
-    
-    protected function checkPrevious($previous) {
-        if (!static::$previousVerification) return true;
-        if (empty($previous) or empty(trim($previous))) return false;
-        if ( trim($previous) != trim($this->value)) return false; 
-        else return true;
+
+    /**
+     * Check previous value.
+     *
+     * @param string $previous Previous value.
+     * @return bool
+     */
+    protected function check_previous(string $previous): bool {
+        if (!static::$previousverification) {
+            return true;
+        }
+        if (empty($previous) || empty(trim($previous))) {
+            return false;
+        }
+        return trim($previous) === trim((string) $this->value);
     }
-    
-    protected function checkAndExtend($len, $table = null, $field = null) {
-        if ( !dbinfos::canTechnicalExtend()) return true;
-        if (empty($table)) $table = $this->table;
-        if (empty($field)) $field = $this->name;
-        if ($len <= dbinfos::getFieldSize($table, $field)) return true;
-        if (!static::$extend) return false;
-        if ($this->name == "name") dbinfos::adjustField("tool_recyclebin_course", "name", $len);
-        if ($this->name == "fullname") dbinfos::adjustField("tool_recyclebin_category", "fullname", $len);
-        if ($this->name == "shortname") dbinfos::adjustField("tool_recyclebin_category", "shortname", $len);
-        return dbinfos::adjustField($table, $field, $len);
+
+    /**
+     * Check and extend field size if allowed.
+     *
+     * @param int $len New length.
+     * @param string|null $table Table name.
+     * @param string|null $field Field name.
+     * @return bool
+     */
+    protected function check_and_extend(int $len, ?string $table = null, ?string $field = null): bool {
+        if (!dbinfos::can_technical_extend()) {
+            return true;
+        }
+        $table = $table ?? $this->table;
+        $field = $field ?? $this->name;
+
+        if ($len <= dbinfos::get_field_size($table, $field)) {
+            return true;
+        }
+
+        if (!static::$extend) {
+            return false;
+        }
+
+        if ($this->name === "name") {
+            dbinfos::adjust_field("tool_recyclebin_course", "name", $len);
+        }
+        if ($this->name === "fullname") {
+            dbinfos::adjust_field("tool_recyclebin_category", "fullname", $len);
+        }
+        if ($this->name === "shortname") {
+            dbinfos::adjust_field("tool_recyclebin_category", "shortname", $len);
+        }
+
+        return dbinfos::adjust_field($table, $field, $len);
     }
-    
-    protected function updateGradebook($newValue) {
-        // search a line to upgrade
-        $sql = "SELECT * FROM {grade_items} WHERE itemname = :name "
-                . "AND itemmodule = :module and iteminstance = :instance";
+
+    /**
+     * Update gradebook item when field changes.
+     *
+     * @param string $newvalue New value.
+     * @return bool
+     */
+    protected function update_gradebook(string $newvalue): bool {
+        // Search a gradebook item to update.
+        $sql = "SELECT * FROM {grade_items} WHERE itemname = :name
+                  AND itemmodule = :module AND iteminstance = :instance";
         $param = [
             "name" => $this->value,
             "module" => $this->table,
-            "instance" => $this->id
+            "instance" => $this->id,
         ];
-        $item = database::loadOne($sql, $param);
-        if (empty($item)) return true;
-        $len = mb_strlen($newValue);
-        if (!$this->checkAndExtend($len, "grade_items", "itemname" ) or !$this->checkAndExtend($len, "grade_items_history", "itemname" ))
-                return $this->error("gradebookfailed");
-        if (!database::update("grade_items", $item->id, "itemname", $newValue)) 
-                return $this->error("gradebookfailed");
-        else return true;    
+
+        $item = database::load_one($sql, $param);
+        if (empty($item)) {
+            return true;
+        }
+
+        $len = mb_strlen($newvalue);
+        if (!$this->check_and_extend($len, "grade_items", "itemname") ||
+            !$this->check_and_extend($len, "grade_items_history", "itemname")) {
+            return $this->seterror("gradebookfailed");
+        }
+
+        if (!database::update("grade_items", $item->id, "itemname", $newvalue)) {
+            return $this->seterror("gradebookfailed");
+        }
+
+        return true;
     }
-    
 }

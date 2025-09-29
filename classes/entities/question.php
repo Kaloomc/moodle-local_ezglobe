@@ -15,9 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Class to manage the entity "question"
+ * Entity class for the "question" activity.
  *
  * @package    local_ezglobe
+ * @subpackage entities
  * @copyright  2025 CBCD EURL & EzGlobe
  * @author     Christophe Blanchot <cblanchot@cbcd.fr>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -25,45 +26,61 @@
 
 namespace local_ezglobe\entities;
 
-class question extends \local_ezglobe\entity {
-    
-    protected $mainTable = "question";       // Table name
-    
-    protected function defineFields() {
-        if (!is_numeric($this->record("questiontext"))) $this->addField("questiontext");
-        $this->addField("generalfeedback");
-        
-        // Detailled feedback
-        $type = $this->record("qtype");
-        $fbfields = [ "correctfeedback", "partiallycorrectfeedback", "incorrectfeedback" ];
-        if ($type == "multichoice") 
-            $this->linkTable("qtype_multichoice_options", "questionid", $fbfields);
-        else if ($type == "match") 
-            $this->linkTable("qtype_match_options", "questionid", $fbfields);
-        else if ($type == "ordering") 
-            $this->linkTable("qtype_ordering_options", "questionid", $fbfields);
-        else if ($type == "randomsamatch") 
-            $this->linkTable("qtype_randomsamatch_options", "questionid", $fbfields);
-        else if ($type == "calculated") 
-            $this->linkTable("question_calculated_options", "question", $fbfields);
-        else if ( ! in_array($type, [ "multianswer", "numerical", "truefalse", "essay", "shortanswer"])) {
-            $record = $this->linkTable("qtype_$type", "questionid", $fbfields);
-            if (empty($record)) $record = $this->linkTable("question_$type", "question", $fbfields);
+use local_ezglobe\entity;
+
+/**
+ * Represents a question entity.
+ */
+class question extends entity {
+
+    /**
+     * The main DB table for the question entity.
+     *
+     * @var string
+     */
+    protected $main_table = 'question';
+
+    /**
+     * Define the fields and relationships for the entity.
+     *
+     * @return void
+     */
+    protected function define_fields(): void {
+        if (!is_numeric($this->record('questiontext'))) {
+            $this->addField('questiontext');
         }
-        
-        //answers
-        $this->addEntitiesFromTable("answers", [ "answer", "feedback"], "question_answers", "question");
-        
-        // subquestions
-        if (($type == "match"))
-            $this->addEntitiesFromTable("subquestions", [ "questiontext", "answertext"], "qtype_match_subquestions", "questionid");
-        
-        // hints
-        $this->addEntitiesFromTable("hints",  [ "hint"], "question_hints", "questionid");
+        $this->addField('generalfeedback');
 
+        // Detailed feedback.
+        $type = $this->record('qtype');
+        $fbfields = ['correctfeedback', 'partiallycorrectfeedback', 'incorrectfeedback'];
+
+        if ($type === 'multichoice') {
+            $this->linkTable('qtype_multichoice_options', 'questionid', $fbfields);
+        } else if ($type === 'match') {
+            $this->linkTable('qtype_match_options', 'questionid', $fbfields);
+        } else if ($type === 'ordering') {
+            $this->linkTable('qtype_ordering_options', 'questionid', $fbfields);
+        } else if ($type === 'randomsamatch') {
+            $this->linkTable('qtype_randomsamatch_options', 'questionid', $fbfields);
+        } else if ($type === 'calculated') {
+            $this->linkTable('question_calculated_options', 'question', $fbfields);
+        } else if (!in_array($type, ['multianswer', 'numerical', 'truefalse', 'essay', 'shortanswer'])) {
+            $record = $this->linkTable('qtype_' . $type, 'questionid', $fbfields);
+            if (empty($record)) {
+                $this->linkTable('question_' . $type, 'question', $fbfields);
+            }
+        }
+
+        // Answers.
+        $this->addEntitiesFromTable('answers', ['answer', 'feedback'], 'question_answers', 'question');
+
+        // Subquestions.
+        if ($type === 'match') {
+            $this->addEntitiesFromTable('subquestions', ['questiontext', 'answertext'], 'qtype_match_subquestions', 'questionid');
+        }
+
+        // Hints.
+        $this->addEntitiesFromTable('hints', ['hint'], 'question_hints', 'questionid');
     }
-
-    
 }
-
-

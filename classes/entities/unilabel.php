@@ -15,49 +15,70 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Class to manage the activity "unilabel"
+ * Entity class for the "unilabel" activity.
  *
  * @package    local_ezglobe
+ * @subpackage entities
  * @copyright  2025 CBCD EURL & EzGlobe
  * @author     Christophe Blanchot <cblanchot@cbcd.fr>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 namespace local_ezglobe\entities;
-use \local_ezglobe\database;
-use \local_ezglobe\entities;
 
-class unilabel extends \local_ezglobe\entity {
-    
-    protected $mainTable = "unilabel";       // Table name
-    
-    protected function defineFields() {
-        $this->addFields("name", "intro");
-        $this->fields["name"]->gradebook();
-        if ($this->record("unilabeltype") == "accordion") {
-            $record = database::get("unilabeltype_accordion", $this->id, "unilabelid");
+use local_ezglobe\database;
+use local_ezglobe\entities;
+use local_ezglobe\entity;
+
+/**
+ * Represents a unilabel activity entity.
+ */
+class unilabel extends entity {
+
+    /**
+     * The main DB table for the entity.
+     *
+     * @var string
+     */
+    protected $main_table = 'unilabel';
+
+    /**
+     * Define the fields and relationships for the entity.
+     *
+     * @return void
+     */
+    protected function define_fields(): void {
+        $this->addFields('name', 'intro');
+        $this->fields['name']->gradebook();
+
+        // Accordion type.
+        if ($this->record('unilabeltype') === 'accordion') {
+            $record = database::get('unilabeltype_accordion', $this->id, 'unilabelid');
             if (!empty($record)) {
-                $values = database::getAll("unilabeltype_accordion_seg", $record->id, "accordionid");
-                $this->fields["segments"] = new entities($values, ["unilabeltype_accordion_seg", "heading", "content"], "id"); 
+                $values = database::getAll('unilabeltype_accordion_seg', $record->id, 'accordionid');
+                $this->fields['segments'] =
+                    new entities($values, ['unilabeltype_accordion_seg', 'heading', 'content'], 'id');
             }
         }
-        if ($this->record("unilabeltype") == "carousel") {
-            $record = database::get("unilabeltype_carousel", $this->id, "unilabelid");
+
+        // Carousel type.
+        if ($this->record('unilabeltype') === 'carousel') {
+            $record = database::get('unilabeltype_carousel', $this->id, 'unilabelid');
             if (!empty($record)) {
-                $values = database::getAll("unilabeltype_carousel_slide", $record->id, "carouselid");
-                $this->fields["slides"] = new entities($values, ["unilabeltype_carousel_slide", "caption"], "id"); 
+                $values = database::getAll('unilabeltype_carousel_slide', $record->id, 'carouselid');
+                $this->fields['slides'] =
+                    new entities($values, ['unilabeltype_carousel_slide', 'caption'], 'id');
             }
         }
-        if ($this->record("unilabeltype") == "grid") {
-            $record = database::get("unilabeltype_grid", $this->id, "unilabelid");
+
+        // Grid type.
+        if ($this->record('unilabeltype') === 'grid') {
+            $record = database::get('unilabeltype_grid', $this->id, 'unilabelid');
             if (!empty($record)) {
-                $values = database::getAll("unilabeltype_grid_tile", $record->id, "gridid");
-                $this->fields["tiles"] = new entities($values, ["unilabeltype_grid_tile", "title", "content"], "id"); 
+                $values = database::getAll('unilabeltype_grid_tile', $record->id, 'gridid');
+                $this->fields['tiles'] =
+                    new entities($values, ['unilabeltype_grid_tile', 'title', 'content'], 'id');
             }
         }
     }
-
-    
 }
-
-

@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Generic class to manage api
+ * Generic API management class.
  *
  * @package    local_ezglobe
  * @copyright  2025 CBCD EURL & EzGlobe
@@ -24,104 +24,195 @@
  */
 
 namespace local_ezglobe;
-use \DateTime;
-use \stdClass;
 
+use DateTime;
+use stdClass;
+
+/**
+ * Base class for handling API requests and responses.
+ */
 class api {
-    
-    
-    protected $mode = "";
+
+    /**
+     * Current mode of the API.
+     *
+     * @var string
+     */
+    protected $mode = '';
+
+    /**
+     * Parameters of the request.
+     *
+     * @var stdClass|null
+     */
     protected $param = null;
-    
-    protected $data = null;     // To build the datas
-    protected $answer = null;   // To build the main answer
-    
-        
-    static function failed($code = "error", $message = "") {
-        $answer = new \stdClass();
+
+    /**
+     * Data container for the response.
+     *
+     * @var stdClass|null
+     */
+    protected $data = null;
+
+    /**
+     * Main API response object.
+     *
+     * @var stdClass|null
+     */
+    protected $answer = null;
+
+    /**
+     * Build a failed API response.
+     *
+     * @param string $code Error code.
+     * @param string $message Error message.
+     * @return stdClass
+     */
+    public static function failed(string $code = 'error', string $message = ''): stdClass {
+        $answer = new stdClass();
         $answer->code = $code;
-        if ( !empty($message)) $answer->message = $message;
-        return $answer;
-    }
-    
-    function process() {
-        // Process the request, and return the final message (object)
-        $this->data = new \stdClass();
-        $this->answer = new \stdClass();
-        $this->answer->code = "ok";
-        if ( !empty($message = $this->checkAuthentification())) return $this->error("auth", $message);
-        $answer = $this->checkParameters();
-        if (!empty($answer)) return $answer;
-        
-        $answer = $this->do();
-        if (empty($answer)) $answer = $this->answer;
-        if (empty($answer->data) and !empty((array) $this->data)) $answer->data = $this->data;
-        return $answer;
-        
-    }
-    
-    protected function checkParameters() {
-        // Analyse parameters
-        // Return error message or null
-        // Should be overloaded
-        return null;
-    }
-    
-    protected function do() {
-        // Process the precise action : prepare the informations
-        // Return a std object with code and other properties
-        // Should be overloaded
-        return null;
-    }
-    
-    
-    function error($code = "error", $message = "") {
-        $answer = new \stdClass();
-        $answer->code = $code;
-        if ( !empty($message)) $answer->message = $message;
+        if (!empty($message)) {
+            $answer->message = $message;
+        }
         return $answer;
     }
 
-    protected function checkAuthentification() {
-        // Return error message or ""
-        if ( get_config("local_ezglobe", "open") != 1 ) return "API disabled";
-        if ( empty(get_config("local_ezglobe", "key"))) return "Empty key, API disabled";
-        if ( strlen(get_config("local_ezglobe", "key")) < 10 ) return "Key is too short, API disabled";
-        if ( empty($this->param->key)) return "Key not provided in the request";
-        if ( $this->param->key != get_config("local_ezglobe", "key")) return "Authentification failed"; 
-        if ( $this->iprestricted() ) return "Your IP address " . strtolower(trim($_SERVER["REMOTE_ADDR"])) . " is not allowed";
-        return "";
-    }
-    
-    protected function iprestricted() {
-        // return true if IP is restricted
-        $ips = [];
-        foreach( explode("\n", str_replace(",", "\n", get_config("local_ezglobe", "ips"))) as $ip) {
-            $ip = strtolower(trim($ip));
-            if (!empty($ip)) $ips[] = $ip;
+    /**
+     * Process the API request.
+     *
+     * @return stdClass
+     */
+    public function process(): stdClass {
+        $this->data = new stdClass();
+        $this->answer = new stdClass();
+        $this->answer->code = 'ok';
+
+        $message = $this->check_authentification();
+        if (!empty($message)) {
+            return $this->error('auth', $message);
         }
-        if (empty($ips)) return false;
-        
-        $myIp = strtolower(trim($_SERVER["REMOTE_ADDR"]));
+
+        $answer = $this->check_parameters();
+        if (!empty($answer)) {
+            return $answer;
+        }
+
+        $answer = $this->do();
+        if (empty($answer)) {
+            $answer = $this->answer;
+        }
+
+        if (empty($answer->data) && !empty((array) $this->data)) {
+            $answer->data = $this->data;
+        }
+
+        return $answer;
+    }
+
+    /**
+     * Validate request parameters.
+     *
+     * Should be overloaded by subclasses.
+     *
+     * @return stdClass|null
+     */
+    protected function check_parameters(): ?stdClass {
+        return null;
+    }
+
+    /**
+     * Execute the main logic of the API.
+     *
+     * Should be overloaded by subclasses.
+     *
+     * @return stdClass|null
+     */
+    protected function do(): ?stdClass {
+        return null;
+    }
+
+    /**
+     * Build an error response.
+     *
+     * @param string $code Error code.
+     * @param string $message Error message.
+     * @return stdClass
+     */
+    public function error(string $code = 'error', string $message = ''): stdClass {
+        $answer = new stdClass();
+        $answer->code = $code;
+        if (!empty($message)) {
+            $answer->message = $message;
+        }
+        return $answer;
+    }
+
+    /**
+     * Check API authentication.
+     *
+     * @return string Error message or empty string if valid.
+     */
+    protected function check_authentification(): string {
+        if (get_config('local_ezglobe', 'open') != 1) {
+            return 'API disabled';
+        }
+        if (empty(get_config('local_ezglobe', 'key'))) {
+            return 'Empty key, API disabled';
+        }
+        if (strlen(get_config('local_ezglobe', 'key')) < 10) {
+            return 'Key is too short, API disabled';
+        }
+        if (empty($this->param->key)) {
+            return 'Key not provided in the request';
+        }
+        if ($this->param->key != get_config('local_ezglobe', 'key')) {
+            return 'Authentication failed';
+        }
+        if ($this->iprestricted()) {
+            return 'Your IP address ' . strtolower(trim($_SERVER['REMOTE_ADDR'])) . ' is not allowed';
+        }
+        return '';
+    }
+
+    /**
+     * Check if current IP is restricted.
+     *
+     * @return bool
+     */
+    protected function iprestricted(): bool {
+        $ips = [];
+        foreach (explode("\n", str_replace(',', "\n", get_config('local_ezglobe', 'ips'))) as $ip) {
+            $ip = strtolower(trim($ip));
+            if (!empty($ip)) {
+                $ips[] = $ip;
+            }
+        }
+        if (empty($ips)) {
+            return false;
+        }
+
+        $myip = strtolower(trim($_SERVER['REMOTE_ADDR']));
         foreach ($ips as $ip) {
-            if ($myIp == $ip) return false;
+            if ($myip === $ip) {
+                return false;
+            }
         }
         return true;
     }
-    
-       
-    function version() {
+
+    /**
+     * Get the plugin version.
+     *
+     * @return int|null
+     */
+    public function version(): ?int {
         global $CFG;
         $pluginpath = $CFG->dirroot . '/local/ezglobe/version.php';
         if (file_exists($pluginpath)) {
-            $plugin = new \stdClass();
+            $plugin = new stdClass();
             include($pluginpath);
-            return $plugin->version;
-        } else {
-            return null;
+            return $plugin->version ?? null;
         }
-
+        return null;
     }
-    
-
 }

@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Class to manage database structure (including extendings fields)
+ * Class to manage database structure (including extending fields).
  *
  * @package    local_ezglobe
  * @copyright  2025 CBCD EURL & EzGlobe
@@ -25,131 +25,215 @@
 
 namespace local_ezglobe;
 
+/**
+ * Utility class for managing Moodle DB schema extensions.
+ */
 class dbinfos {
-    
-    
-    static protected $tables = [];      // Tables, fields in tables
-                                        // Values are :
-                                        //     number : maximum length
-                                        //     false : field not found
-    
-    static protected $initial = [];    // As tables, but only for modified fields, with the initial length
 
-    static protected $canTechnicalExtend = null; 
-    static protected $canExtend = null; 
-    
-    
-    static function canExtend() {
-        global $CFG, $DB;
-        
-        if ( is_null(static::$canExtend)) {
-            if (get_config("local_ezglobe", "key") == 0 ) static::$canExtend = false;
-            else if ( ! static::canTechnicalExtend()) static::$canExtend = false;
-            else static::$canExtend = true;
-        } 
-        
-        return static::$canExtend;
+    /** @var array $tables Tables and fields info (max length, false if missing). */
+    protected static $tables = [];
 
+    /** @var array $initial Initial field sizes before extension. */
+    protected static $initial = [];
+
+    /** @var bool|null $cantechnicalextend Whether DB engine supports field extension. */
+    protected static $cantechnicalextend = null;
+
+    /** @var bool|null $canextend Whether the plugin is allowed to extend fields. */
+    protected static $canextend = null;
+
+    /**
+     * Whether extension is allowed.
+     *
+     * @return bool
+     */
+    public static function canextend(): bool {
+        if (is_null(static::$canextend)) {
+            if (get_config("local_ezglobe", "key") == 0) {
+                static::$canextend = false;
+            } else if (!static::cantechnicalextend()) {
+                static::$canextend = false;
+            } else {
+                static::$canextend = true;
+            }
+        }
+        return static::$canextend;
     }
-     
-    static function canTechnicalExtend() {
-        global $CFG, $DB;
-        
-        if ( ! is_null(static::$canTechnicalExtend)) return static::$canTechnicalExtend;
-        if ( ! in_array($DB->get_dbfamily(), ["mysql"])) {
-            static::$canTechnicalExtend = false;
+
+    /**
+     * Checks if the DB engine technically allows extension (MySQL only).
+     *
+     * @return bool
+     */
+    public static function cantechnicalextend(): bool {
+        global $DB;
+
+        if (!is_null(static::$cantechnicalextend)) {
+            return static::$cantechnicalextend;
+        }
+
+        if (!in_array($DB->get_dbfamily(), ["mysql"])) {
+            static::$cantechnicalextend = false;
             return false;
         }
-        
-        // Tentative d'accéder au schéma
-        static::$canTechnicalExtend = ! empty(static::getColumnInfo("user", "id"));
-        return static::$canTechnicalExtend;
-    }
-    
-    static function adjustField($table, $field, $len) {
-        global $DB;
-        if (!static::canExtend()) return false;
-        $size = static::getFieldSize($table, $field);
-        if ($size >= 65535 or empty($size) or $size >= $len ) return false;
 
-        if ( ! isset(static::$initial[$table])) static::$initial[$table] = [];
-        if ( ! isset(static::$initial[$table][$field])) static::$initial[$table][$field] = $size;
+        static::$cantechnicalextend = !empty(static::getcolumninfo("user", "id"));
+        return static::$cantechnicalextend;
+    }
+
+    /**
+     * Adjusts the size of a field if possible.
+     *
+     * @param string $table Table name.
+     * @param string $field Field name.
+     * @param int $len New required length.
+     * @return bool
+     */
+    public static function adjustfield(string $table, string $field, int $len): bool {
+        global $DB;
+
+        if (!static::canextend()) {
+            return false;
+        }
+
+        $size = static::getfieldsize($table, $field);
+        if ($size >= 65535 || empty($size) || $size >= $len) {
+            return false;
+        }
+
+        if (!isset(static::$initial[$table])) {
+            static::$initial[$table] = [];
+        }
+        if (!isset(static::$initial[$table][$field])) {
+            static::$initial[$table][$field] = $size;
+        }
+
         $size = 255;
-        while( $len > $size) $size = $size * 2 + 1;
+        while ($len > $size) {
+            $size = $size * 2 + 1;
+        }
+
         $dbman = $DB->get_manager();
-        $dbtable = new \xmldb_table($table); 
+        $dbtable = new \xmldb_table($table);
         $dbfield = new \xmldb_field($field, XMLDB_TYPE_CHAR, "$size");
         $dbman->change_field_precision($dbtable, $dbfield);
-        static::getFieldSize($table, $field, true);
+
+        static::getfieldsize($table, $field, true);
         return true;
     }
-    
-    static function getExtensions() {
+
+    /**
+     * Returns the list of extended fields.
+     *
+     * @return array
+     */
+    public static function getextensions(): array {
         $result = [];
-        foreach(static::$initial as $table => $fields) {
+        foreach (static::$initial as $table => $fields) {
             $result[$table] = [];
-            foreach($fields as $name => $size) {
-                $result[$table][$name] = [ "previousSize" => $size, 
-                            "newSize" =>  static::getFieldSize($table, $name)];
+            foreach ($fields as $name => $size) {
+                $result[$table][$name] = [
+                    "previousSize" => $size,
+                    "newSize" => static::getfieldsize($table, $name),
+                ];
             }
         }
         return $result;
     }
-    
-    protected static function getColumnInfo($table, $field) {
+
+    /**
+     * Returns DB column information.
+     *
+     * @param string $table Table name.
+     * @param string $field Field name.
+     * @return mixed
+     */
+    protected static function getcolumninfo(string $table, string $field) {
         global $CFG, $DB;
+
         $table = $CFG->prefix . $table;
         $sql = "SELECT TABLE_NAME, COLUMN_NAME, DATA_TYPE, CHARACTER_MAXIMUM_LENGTH
-            FROM information_schema.COLUMNS
-            WHERE TABLE_SCHEMA = '$CFG->dbname'
-            AND TABLE_NAME = '$table'
-            AND COLUMN_NAME = '$field' ";
+                  FROM information_schema.COLUMNS
+                 WHERE TABLE_SCHEMA = :dbname
+                   AND TABLE_NAME = :tablename
+                   AND COLUMN_NAME = :field";
+
         try {
-            $result = $DB->get_record_sql($sql);
-            return $result;
+            return $DB->get_record_sql($sql, [
+                'dbname' => $CFG->dbname,
+                'tablename' => $table,
+                'field' => $field,
+            ]);
         } catch (\dml_exception $ex) {
             return null;
-        } catch (Exception $ex) {
-            return new null;
+        } catch (\Exception $ex) {
+            return null;
         }
-        
     }
-    
-    static function getFieldSize($table, $field, $force = false) {
-        if (!static::canTechnicalExtend()) return false;
-        if ( ! isset(static::$tables[$table])) static::$tables[$table] = [];
-        if ( ! isset(static::$tables[$table][$field]) or $force) {
-            $infos = static::getColumnInfo($table, $field);
-            if (empty($infos)) static::$tables[$table][$field] = false;
-            else static::$tables[$table][$field] = $infos->character_maximum_length;
-        } 
+
+    /**
+     * Gets the current field size.
+     *
+     * @param string $table Table name.
+     * @param string $field Field name.
+     * @param bool $force Force reload.
+     * @return mixed
+     */
+    public static function getfieldsize(string $table, string $field, bool $force = false) {
+        if (!static::cantechnicalextend()) {
+            return false;
+        }
+
+        if (!isset(static::$tables[$table])) {
+            static::$tables[$table] = [];
+        }
+
+        if (!isset(static::$tables[$table][$field]) || $force) {
+            $infos = static::getcolumninfo($table, $field);
+            if (empty($infos)) {
+                static::$tables[$table][$field] = false;
+            } else {
+                static::$tables[$table][$field] = $infos->character_maximum_length;
+            }
+        }
+
         return static::$tables[$table][$field];
     }
-    
-    
-    protected static function loadTable($table) {
-        // Return : true is $table is a moodle table and not empty, false if not       
-        global $CFG, $DB;
-        if (isset(static::$tables[$table])) return !empty(static::$tables[$table]);
-        
-        $sql = "SELECT * FROM {" . $table  . "} LIMIT 1";
+
+    /**
+     * Loads table information into memory.
+     *
+     * @param string $table Table name.
+     * @return bool True if valid Moodle table with content.
+     */
+    protected static function loadtable(string $table): bool {
+        global $DB;
+
+        if (isset(static::$tables[$table])) {
+            return !empty(static::$tables[$table]);
+        }
+
+        $sql = "SELECT * FROM {" . $table . "} LIMIT 1";
         try {
             $result = $DB->get_record_sql($sql);
-            if (empty($result)) { 
+            if (empty($result)) {
                 static::$tables[$table] = false;
                 return false;
             }
+
             $fields = [];
-            foreach($result as $name=>$value) $fields[$name] = true;
+            foreach ($result as $name => $value) {
+                $fields[$name] = true;
+            }
+
             static::$tables[$table] = $fields;
             return true;
         } catch (\dml_exception $ex) {
             static::$tables[$table] = false;
             return false;
-        } catch (Exception $ex) {
+        } catch (\Exception $ex) {
             static::$tables[$table] = false;
             return false;
-        }  
+        }
     }
-    
 }

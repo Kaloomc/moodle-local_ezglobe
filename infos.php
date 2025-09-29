@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Provides API endpoint to retrieve general information.
+ *
  * @package    local_ezglobe
  * @copyright  2025 CBCD EURL & EzGlobe
  * @author     Christophe Blanchot <cblanchot@cbcd.fr>
@@ -22,11 +24,13 @@
  */
 
 
+
 define('AJAX_SCRIPT', true);
 define('WS_SERVER', true);
 require('../../config.php');
 require('locallib.php');
 
+require_login();
 
 $user = get_admin();
 \core\session\manager::set_user($user);
@@ -34,10 +38,10 @@ $user = get_admin();
 $parameters = local_ezglobe_get_parameters();
 if ($parameters === false) {
     local_ezglobe_return( api::error(api::syntaxerror, "Syntax error") );
-    exit;    
+    exit;
 }
 
-$param = local_ezglobe_get_parameters();        // Directly exit if not correct
+$param = local_ezglobe_get_parameters();        // Directly exit if not correct.
 
 $api = new \local_ezglobe\api_infos($param);
 local_ezglobe_return($api->process());

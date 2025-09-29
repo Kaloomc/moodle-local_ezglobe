@@ -15,9 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Class to manage the activity "stickynotes"
+ * Entity class for the activity "stickynotes".
  *
  * @package    local_ezglobe
+ * @subpackage entities
  * @copyright  2025 CBCD EURL & EzGlobe
  * @author     Christophe Blanchot <cblanchot@cbcd.fr>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -25,17 +26,44 @@
 
 namespace local_ezglobe\entities;
 
-class stickynotes extends \local_ezglobe\entity {
-    
-    protected $mainTable = "stickynotes";       // Table name
-    
-    protected function defineFields() {
-        $this->addFields("name", "intro", "color1_meaning", "color1_meaning", "color2_meaning", "color3_meaning", "color4_meaning", "color5_meaning", "color6_meaning");
-        $this->fields["name"]->gradebook();
-        $this->addEntitiesFromTable("columns",  [ "title"], "stickynotes_column", "stikyid");
+use local_ezglobe\entity;
+
+/**
+ * Represents a stickynotes activity entity.
+ */
+class stickynotes extends entity {
+
+    /**
+     * The main DB table for the stickynotes entity.
+     *
+     * @var string
+     */
+    protected $main_table = 'stickynotes';
+
+    /**
+     * Define the fields and related entities for the stickynotes activity.
+     *
+     * @return void
+     */
+    protected function define_fields(): void {
+        $this->addFields(
+            'name',
+            'intro',
+            'color1_meaning',
+            'color2_meaning',
+            'color3_meaning',
+            'color4_meaning',
+            'color5_meaning',
+            'color6_meaning'
+        );
+
+        $this->fields['name']->gradebook();
+
+        $this->addEntitiesFromTable(
+            'columns',
+            ['title'],
+            'stickynotes_column',
+            'stikyid'
+        );
     }
-
-    
 }
-
-

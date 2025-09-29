@@ -15,9 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Class to manage the entity "glossary_entry"
+ * Entity class for glossary entries.
  *
  * @package    local_ezglobe
+ * @subpackage entities
  * @copyright  2025 CBCD EURL & EzGlobe
  * @author     Christophe Blanchot <cblanchot@cbcd.fr>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -25,16 +26,27 @@
 
 namespace local_ezglobe\entities;
 
-class glossary_entry extends \local_ezglobe\entity {
-    
-    protected $mainTable = "glossary_entries";       // Table name
-    
-    protected function defineFields() {
-        $this->addFields("concept", "definition");
-        $this->addEntitiesFromTable("aliases",  [ "alias"], "glossary_alias", "entryid");
+use local_ezglobe\entity;
+
+/**
+ * Represents a glossary entry entity.
+ */
+class glossary_entry extends entity {
+
+    /**
+     * The main DB table for glossary entries.
+     *
+     * @var string
+     */
+    protected $main_table = 'glossary_entries';
+
+    /**
+     * Define the fields and related entities for the glossary entry.
+     *
+     * @return void
+     */
+    protected function define_fields(): void {
+        $this->addFields('concept', 'definition');
+        $this->addEntitiesFromTable('aliases', ['alias'], 'glossary_alias', 'entryid');
     }
-
-    
 }
-
-

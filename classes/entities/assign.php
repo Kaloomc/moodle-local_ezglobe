@@ -15,9 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Class to manage the activity "assign"
+ * Entity class for the "assign" activity.
  *
  * @package    local_ezglobe
+ * @subpackage entities
  * @copyright  2025 CBCD EURL & EzGlobe
  * @author     Christophe Blanchot <cblanchot@cbcd.fr>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -25,16 +26,27 @@
 
 namespace local_ezglobe\entities;
 
-class assign extends \local_ezglobe\entity {
-    
-    protected $mainTable = "assign";       // Table name
-    
-    protected function defineFields() {
-        $this->addFields("name", "intro", "activity");
-        $this->fields["name"]->gradebook();
+use local_ezglobe\entity;
+
+/**
+ * Represents an assign activity entity.
+ */
+class assign extends entity {
+
+    /**
+     * The main DB table for the entity.
+     *
+     * @var string
+     */
+    protected $main_table = 'assign';
+
+    /**
+     * Define the fields and relationships for the entity.
+     *
+     * @return void
+     */
+    protected function define_fields(): void {
+        $this->addFields('name', 'intro', 'activity');
+        $this->fields['name']->gradebook();
     }
-
-    
 }
-
-

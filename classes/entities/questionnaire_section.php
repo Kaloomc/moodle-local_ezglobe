@@ -15,9 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Class to manage the entity "questionnaire_section"
+ * Entity class for questionnaire sections.
  *
  * @package    local_ezglobe
+ * @subpackage entities
  * @copyright  2025 CBCD EURL & EzGlobe
  * @author     Christophe Blanchot <cblanchot@cbcd.fr>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -25,16 +26,27 @@
 
 namespace local_ezglobe\entities;
 
-class questionnaire_section extends \local_ezglobe\entity {
-    
-    protected $mainTable = "questionnaire_fb_sections";       // Table name
-    
-    protected function defineFields() {
-        $this->addFields("sectionheading");
-        $this->addEntitiesFromTable("feedbacks",  [ "feedbacktext"], "questionnaire_feedback", "sectionid");
+use local_ezglobe\entity;
+
+/**
+ * Represents a questionnaire section entity for API handling.
+ */
+class questionnaire_section extends entity {
+
+    /**
+     * The main DB table for questionnaire sections.
+     *
+     * @var string
+     */
+    protected $main_table = 'questionnaire_fb_sections';
+
+    /**
+     * Define the fields and related entities for a questionnaire section.
+     *
+     * @return void
+     */
+    protected function define_fields(): void {
+        $this->addFields('sectionheading');
+        $this->addEntitiesFromTable('feedbacks', ['feedbacktext'], 'questionnaire_feedback', 'sectionid');
     }
-
-    
 }
-
-

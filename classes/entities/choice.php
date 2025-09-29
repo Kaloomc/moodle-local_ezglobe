@@ -15,9 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Class to manage the activity "choice"
+ * Entity class for the Choice activity.
  *
  * @package    local_ezglobe
+ * @subpackage entities
  * @copyright  2025 CBCD EURL & EzGlobe
  * @author     Christophe Blanchot <cblanchot@cbcd.fr>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -25,17 +26,28 @@
 
 namespace local_ezglobe\entities;
 
-class choice extends \local_ezglobe\entity {
-    
-    protected $mainTable = "choice";       // Table name
-    
-    protected function defineFields() {
-        $this->addFields("name", "intro");
-        $this->fields["name"]->gradebook();
-        $this->addEntitiesFromTable("options",  [ "text"], "choice_options", "choiceid");
+use local_ezglobe\entity;
+
+/**
+ * Represents a Choice activity entity.
+ */
+class choice extends entity {
+
+    /**
+     * The main DB table for the choice activity.
+     *
+     * @var string
+     */
+    protected $main_table = 'choice';
+
+    /**
+     * Define the fields and related entities for the choice activity.
+     *
+     * @return void
+     */
+    protected function define_fields(): void {
+        $this->addFields('name', 'intro');
+        $this->fields['name']->gradebook();
+        $this->addEntitiesFromTable('options', ['text'], 'choice_options', 'choiceid');
     }
-
-    
 }
-
-

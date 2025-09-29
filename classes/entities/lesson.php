@@ -15,9 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Class to manage the activity "lesson"
+ * Entity class for the "lesson" activity.
  *
  * @package    local_ezglobe
+ * @subpackage entities
  * @copyright  2025 CBCD EURL & EzGlobe
  * @author     Christophe Blanchot <cblanchot@cbcd.fr>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -25,18 +26,29 @@
 
 namespace local_ezglobe\entities;
 
-class lesson extends \local_ezglobe\entity {
-    
-    protected $mainTable = "lesson";       // Table name
-    
-    protected function defineFields() {
-        $this->addFields("name", "intro");
-        $this->fields["name"]->gradebook();
-        $this->addEntitiesFromTable("pages",  [ "title", "contents"], "lesson_pages", "lessonid");
-        $this->addEntitiesFromTable("answers",  [ "answer", "response"], "lesson_answers", "lessonid");
+use local_ezglobe\entity;
+
+/**
+ * Represents a lesson activity entity.
+ */
+class lesson extends entity {
+
+    /**
+     * The main DB table for this entity.
+     *
+     * @var string
+     */
+    protected $main_table = 'lesson';
+
+    /**
+     * Define the fields and relationships for this entity.
+     *
+     * @return void
+     */
+    protected function define_fields(): void {
+        $this->addFields('name', 'intro');
+        $this->fields['name']->gradebook();
+        $this->addEntitiesFromTable('pages', ['title', 'contents'], 'lesson_pages', 'lessonid');
+        $this->addEntitiesFromTable('answers', ['answer', 'response'], 'lesson_answers', 'lessonid');
     }
-
-    
 }
-
-

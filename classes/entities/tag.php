@@ -15,9 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Class to manage the entity "tag"
+ * Entity class for "tag".
  *
  * @package    local_ezglobe
+ * @subpackage entities
  * @copyright  2025 CBCD EURL & EzGlobe
  * @author     Christophe Blanchot <cblanchot@cbcd.fr>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -25,16 +26,30 @@
 
 namespace local_ezglobe\entities;
 
-class tag extends \local_ezglobe\entity {
-    
-    protected $mainTable = "tag";       // Table name
-    
-    protected function defineFields() {
-        $this->addFields("name", "rawname", "description");
+use local_ezglobe\entity;
 
+/**
+ * Represents a tag entity.
+ */
+class tag extends entity {
+
+    /**
+     * The main DB table for the tag entity.
+     *
+     * @var string
+     */
+    protected $main_table = 'tag';
+
+    /**
+     * Define the fields for the tag entity.
+     *
+     * @return void
+     */
+    protected function define_fields(): void {
+        $this->addFields(
+            'name',
+            'rawname',
+            'description'
+        );
     }
-
-    
 }
-
-

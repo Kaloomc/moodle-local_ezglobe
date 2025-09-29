@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Class to manage an entity supported by API
+ * Class to manage a generic entity supported by the API.
  *
  * @package    local_ezglobe
  * @copyright  2025 CBCD EURL & EzGlobe
@@ -25,225 +25,372 @@
 
 namespace local_ezglobe;
 
+/**
+ * Generic entity wrapper for API-managed Moodle objects.
+ */
 class entity {
-    
-    protected $mainTable;       // Table name, to define in herited classes
-   
-    protected $id;                  
-    protected $fields = [];     // fields and entities lists  
-    protected $record = -1;     // Enregistrement de la base de données
-    
-    protected $otherTables = [];    // [ code => objRecord, .... ]
-    protected $otherDef = [];    // [ code => [ table, id ], .... ]
-    
-    protected $error = "ok";
-    protected $fieldsError = [];
-    
-    static protected $modules = null;  // [ moduleId => moduleName, .... ]
-    static protected $sections = null;  // [ sectionId => number, .... ]
-    
-  
-    protected function defineFields() {
-        // Fields loading, to overload in all herited classes
-        // using following methods
 
-        
+    /** @var string Main database table name. */
+    protected $main_table;
+
+    /** @var int|string|null Identifier for this entity. */
+    protected $id;
+
+    /** @var array<string,field|entities> Fields attached to this entity. */
+    protected $fields = [];
+
+    /** @var object|int Database record or -1 if lazy loaded. */
+    protected $record = -1;
+
+    /** @var array<string,object> Extra related table records. */
+    protected $other_tables = [];
+
+    /** @var array<string,array> Mapping of related tables. */
+    protected $other_def = [];
+
+    /** @var string Entity error state. */
+    protected $error = 'ok';
+
+    /** @var array<string,string> Field-level errors. */
+    protected $fields_error = [];
+
+    /** @var array<int,string>|null Cache of module names by id. */
+    protected static $modules = null;
+
+    /** @var array<int,int>|null Cache of section numbers by id. */
+    protected static $sections = null;
+
+    /**
+     * Constructor.
+     *
+     * @param int|object|array $id_or_record Identifier or DB record.
+     * @param string|null $main_table Override main table.
+     * @param array $fields Initial fields to add.
+     * @param array $info_fields Additional fixed info fields.
+     */
+    public function __construct($id_or_record, $main_table = null, $fields = [], $info_fields = []) {
+        if (is_array($id_or_record)) {
+            $id_or_record = (object) $id_or_record;
+        }
+        if (is_object($id_or_record)) {
+            $this->record = $id_or_record;
+            $this->id = $this->record(database::id_name($this->main_table));
+        } else {
+            $this->id = $id_or_record;
+        }
+        if (!empty($main_table)) {
+            $this->main_table = $main_table;
+        }
+        foreach ($info_fields as $name => $value) {
+            $this->add_direct($name, $value)->only_get();
+        }
+        if (!empty($fields)) {
+            $this->add_fields(...$fields);
+        }
+        $this->define_fields();
     }
 
-    
-    function addDirect($name, $value) {
-        // Add fields from name and value
-        if (! $value instanceof field and ! $value instanceof entities)
+    /**
+     * Define the fields available for this entity.
+     * To be overridden by child classes.
+     *
+     * @return void
+     */
+    protected function define_fields() {
+        // No default implementation.
+    }
+
+    /**
+     * Add a direct field value.
+     *
+     * @param string $name Field name.
+     * @param mixed $value Value.
+     * @return field|entities
+     */
+    public function add_direct(string $name, $value) {
+        if (!$value instanceof field && !$value instanceof entities) {
             $value = new value($value);
+        }
         $this->fields[$name] = $value;
         return $this->fields[$name];
     }
-    
-    function addFields(...$names) {
-        // Add fields from this table
-        // each name is dbname or alias:dbname
-       
-        foreach($names as $name) $this->addField($name);
+
+    /**
+     * Add multiple fields from this table.
+     *
+     * @param string ...$names Field names.
+     * @return void
+     */
+    public function add_fields(...$names) {
+        foreach ($names as $name) {
+            $this->add_field($name);
+        }
     }
-    
-    function addField($name, $aliasTableName = null) {
-        // name is dbname or alias:dbname
-        if (strpos($name, ":")) {
-            $name = explode(":", $name);
-            $alias = $name[0];
-            $name = $name[1];
-        } else $alias = $name;
-        if (is_null($aliasTableName)) {
-            $field = new field($this->record(), $this->mainTable, $this->id, $name);
+
+    /**
+     * Add one field from this table.
+     *
+     * @param string $name Field name (or alias:dbname).
+     * @param string|null $alias_table_name Optional table alias.
+     * @return field
+     */
+    public function add_field(string $name, ?string $alias_table_name = null) {
+        if (strpos($name, ':') !== false) {
+            [$alias, $name] = explode(':', $name, 2);
         } else {
-            $field = new field($this->otherTables[$name], $this->otherDef[$aliasTableName][0], $this->otherDef[$aliasTableName][1], $name);
+            $alias = $name;
+        }
+
+        if (is_null($alias_table_name)) {
+            $field = new field($this->record(), $this->main_table, $this->id, $name);
+        } else {
+            $field = new field(
+                $this->other_tables[$name],
+                $this->other_def[$alias_table_name][0],
+                $this->other_def[$alias_table_name][1],
+                $name
+            );
         }
         $this->fields[$alias] = $field;
         return $field;
     }
-    
-    function addTable($name, $table, $record, $fields = []) {
-        // Add table's record to define more fields
-        $idName = database::idName($table);
-        $this->otherDef[$name] = [ $table, $record->$idName];
-        $this->otherTables[$name] = $record;
-        foreach($fields as $fieldName) $this->addField($fieldName, $name);
+
+    /**
+     * Add another table to this entity.
+     *
+     * @param string $name Alias name.
+     * @param string $table Table name.
+     * @param object $record DB record.
+     * @param array $fields Fields to add.
+     * @return void
+     */
+    public function add_table(string $name, string $table, $record, array $fields = []) {
+        $id_name = database::id_name($table);
+        $this->other_def[$name] = [$table, $record->$id_name];
+        $this->other_tables[$name] = $record;
+        foreach ($fields as $field_name) {
+            $this->add_field($field_name, $name);
+        }
     }
-    
-    function linkTable($table, $join, $fields = []) {
-        // get a record from an other table (the first one)
-        // $table : real table in database
-        // $join : way to find the other records,
-        //              it can be a field (from this table to the linked table id)
-        //              or [ $targetName => $thisName  ] to have links through specific fields
+
+    /**
+     * Link a table by foreign key.
+     *
+     * @param string $table Table name.
+     * @param string|array $join Join condition.
+     * @param array $fields Fields to add.
+     * @return object|null
+     */
+    public function link_table(string $table, $join, array $fields = []) {
         if (is_array($join)) {
-            foreach($join as $targetName=>$thisName) break;
+            $target_name = key($join);
+            $this_name = $join[$target_name];
         } else {
-            $targetName = $join;
-            $thisName = database::idName($this->mainTable);
-        } 
-        $record = database::get($table, $this->record($thisName), $targetName);
-        if (empty($record)) return null;
-        $idName = database::idName($table);
-        $id = $record->$idName;
+            $target_name = $join;
+            $this_name = database::id_name($this->main_table);
+        }
+
+        $record = database::get($table, $this->record($this_name), $target_name);
+        if (empty($record)) {
+            return null;
+        }
+
+        $id_name = database::id_name($table);
+        $id = $record->$id_name;
+
         foreach ($fields as $name) {
-            if (strpos($name, ":")) {
-                $name = explode(":", $name);
-                $alias = $name[0];
-                $name = $name[1];
-            } else $alias = $name;
+            if (strpos($name, ':') !== false) {
+                [$alias, $name] = explode(':', $name, 2);
+            } else {
+                $alias = $name;
+            }
             $field = new field($record, $table, $id, $name);
             $this->fields[$alias] = $field;
         }
         return $record;
     }
-        
-    function addEntitiesFromTable($name, $entityName, $table, $join, $indexOn = null) {
-        // Add entities directly from the table
-        // $name : name of the attribute (field)
-        // $entityName : name of entity (class for entity)
-        //          or [ fieldNames, ... ] for a basic entity based on a few fields of the table         
-        // $table : real table in database
-        // $join : way to find the other records,
-        //              it can be a field (from linked table to this table id)
-        //              or [ $targetName => $thisName  ] to have links through specific fields
-        // $indexOn : field on witch index the entities (by default, id of $table)
-        
-        if (is_null($indexOn)) $indexOn = database::idName($table);
-        if (is_array($join)) {
-            foreach($join as $targetName=>$thisName) break;
-        } else {
-            $targetName = $join;
-            $thisName = database::idName($this->mainTable);
+
+    /**
+     * Add sub-entities from a related table.
+     *
+     * @param string $name Field name.
+     * @param string|array $entity_name Entity class name or field list.
+     * @param string $table Table name.
+     * @param string|array $join Join condition.
+     * @param string|null $index_on Index field.
+     * @return entities
+     */
+    public function add_entities_from_table(
+        string $name,
+        $entity_name,
+        string $table,
+        $join,
+        ?string $index_on = null
+    ) {
+        if (is_null($index_on)) {
+            $index_on = database::id_name($table);
         }
-        $values = database::getAll($table, $this->record($thisName), $targetName);
-        if (is_array($entityName)) array_unshift($entityName, $table);
-        $this->fields[$name] = new entities($values, $entityName, $indexOn);    
+
+        if (is_array($join)) {
+            $target_name = key($join);
+            $this_name = $join[$target_name];
+        } else {
+            $target_name = $join;
+            $this_name = database::id_name($this->main_table);
+        }
+
+        $values = database::get_all($table, $this->record($this_name), $target_name);
+        if (is_array($entity_name)) {
+            array_unshift($entity_name, $table);
+        }
+
+        $this->fields[$name] = new entities($values, $entity_name, $index_on);
         return $this->fields[$name];
     }
-    
-    function get() {
-        // Extract the final object
+
+    /**
+     * Get final data array.
+     *
+     * @return array
+     */
+    public function get(): array {
         $result = [];
-        foreach($this->fields as $name => $obj) {
-            $objResult = $obj->get();
-            if ( ! empty($objResult) or $objResult === 0 or $objResult === "0" )
-                    $result[$name] = $objResult;
+        foreach ($this->fields as $name => $obj) {
+            $obj_result = $obj->get();
+            if (!empty($obj_result) || $obj_result === 0 || $obj_result === '0') {
+                $result[$name] = $obj_result;
+            }
         }
         return $result;
     }
-    
-    
-    function __construct($idOrRecord, $mainTable = null, $fields = [], $infoFields = []) {
-        // Load the datas an make entity
-        // $idOrRecord is the id on the mainTable or the record
-        // $mainTable is the mainTable (can be defined by the class itself)
-        // $fields ar fields to add before calling $this->defineFields()
-        // $infoFields are values to add at the beginning of fields
-        if (is_array($idOrRecord)) $idOrRecord = (object) $idOrRecord;
-        if (is_object($idOrRecord)) {
-            $this->record = $idOrRecord;
-            $this->id = $this->record(database::idName($this->mainTable));
-        } else $this->id = $idOrRecord;
-        if (!empty($mainTable)) $this->mainTable = $mainTable;
-        foreach($infoFields as $name => $value) $this->addDirect($name, $value)->onlyGet();
-        if (!empty($fields)) $this->addFields(...$fields);
-        $this->defineFields();
+
+    /**
+     * Get module name by id.
+     *
+     * @param int $module_id Module id.
+     * @return string
+     */
+    public static function module_name(int $module_id): string {
+        if (is_null(static::$modules)) {
+            static::make_modules();
+        }
+        return static::$modules[$module_id] ?? '';
     }
-    
-    static function moduleName($moduleId) {
-        if (is_null(static::$modules)) static::makeModules();
-        if (isset(static::$modules[$moduleId])) return static::$modules[$moduleId];
-        else return "";        
+
+    /**
+     * Get module name for a course module.
+     *
+     * @param int $cmid Course module id.
+     * @return string
+     */
+    public function get_module_name(int $cmid): string {
+        if (is_null(static::$modules)) {
+            static::make_modules();
+        }
+        $cm = database::get('course_modules', $cmid);
+        if (empty($cm)) {
+            return '';
+        }
+        return static::$modules[$cm->module] ?? '';
     }
-        
-    function getModuleName($cmid) {
-        // Give the module name for a course_module
-        if (is_null(static::$modules)) static::makeModules();
-        $cm = database::get("course_modules", $cmid);
-        if (empty($cm)) return "";
-        if (isset(static::$modules[$cm->module])) return static::$modules[$cm->module];
-        else return "";  
-    }
-    
-    protected static function makeModules() {
+
+    /**
+     * Build the module cache.
+     *
+     * @return void
+     */
+    protected static function make_modules() {
         static::$modules = [];
-        foreach(database::getAll("modules")  as $record) {
+        foreach (database::get_all('modules') as $record) {
             static::$modules[$record->id] = $record->name;
         }
     }
-    
-    
-    protected function record($name = null) {
-        // Get the curent record from database
-        if ( ! is_object($this->record) and $this->record == -1) {
-            $record = database::get($this->mainTable, $this->id);
-            if (empty($record)) $record = new \stdClass();
+
+    /**
+     * Get the current record.
+     *
+     * @param string|null $name Field name.
+     * @return mixed
+     */
+    protected function record(?string $name = null) {
+        if (!is_object($this->record) && $this->record === -1) {
+            $record = database::get($this->main_table, $this->id);
+            if (empty($record)) {
+                $record = new \stdClass();
+            }
             $this->record = $record;
-        } else $record = $this->record;
-        if (empty($name)) return $record;
-        if (isset($record->$name)) return $record->$name;
-        else return null;
+        } else {
+            $record = $this->record;
+        }
+
+        if (empty($name)) {
+            return $record;
+        }
+        return $record->$name ?? null;
     }
 
-        protected function error($error = "error") {
+    /**
+     * Set an error state.
+     *
+     * @param string $error Error message.
+     * @return bool
+     */
+    protected function error(string $error = 'error'): bool {
         $this->error = $error;
         return false;
     }
-    
-    function update($data, $previous) {
-        // Update the fields
-        if (!is_object($data) and !is_array($data)) return $this->error("error");
+
+    /**
+     * Update entity fields.
+     *
+     * @param object|array $data Data.
+     * @param object|null $previous Previous state.
+     * @return bool
+     */
+    public function update($data, $previous): bool {
+        if (!is_object($data) && !is_array($data)) {
+            return $this->error('error');
+        }
+
         $ko = false;
         foreach ($data as $index => $value) {
             if (!isset($this->fields[$index])) {
-                $this->fieldsError[$index] = "notfound";
+                $this->fields_error[$index] = 'notfound';
                 continue;
             }
-            if (!empty($previous) and isset($previous->$index)) $thatPrevious = $previous->$index;
-            else $thatPrevious = null;
-            if ( ! $this->fields[$index]->update($value, $thatPrevious)) {
+            $previous_value = $previous->$index ?? null;
+            if (!$this->fields[$index]->update($value, $previous_value)) {
                 $ko = true;
-                $this->fieldsError[$index] = "partial";
+                $this->fields_error[$index] = 'partial';
             }
-            
         }
         return !$ko;
-
     }
 
-    function getErrors() {
-        // Return all errors in the tree
-        if ($this->error != "ok") return $this->error;
-        if (empty($this->fieldsError)) return null;
-        $result = [];
-        foreach ($this->fieldsError as $index => $error) {
-            if ($error == "partial") {
-                $subResult = $this->fields[$index]->getErrors();
-                if (!empty($subResult)) $result[$index] = $subResult;
-            } else if ($error != "ok") $result[$index] = $error;
+    /**
+     * Get entity errors.
+     *
+     * @return array|string|null
+     */
+    public function get_errors() {
+        if ($this->error !== 'ok') {
+            return $this->error;
         }
-        if (empty($result)) return null;
-        else return $result;
+        if (empty($this->fields_error)) {
+            return null;
+        }
+
+        $result = [];
+        foreach ($this->fields_error as $index => $error) {
+            if ($error === 'partial') {
+                $sub_result = $this->fields[$index]->get_errors();
+                if (!empty($sub_result)) {
+                    $result[$index] = $sub_result;
+                }
+            } else if ($error !== 'ok') {
+                $result[$index] = $error;
+            }
+        }
+        return empty($result) ? null : $result;
     }
 }

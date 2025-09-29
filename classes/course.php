@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Class to check courses
+ * Class to check courses.
  *
  * @package    local_ezglobe
  * @copyright  2025 CBCD EURL & EzGlobe
@@ -25,52 +25,117 @@
 
 namespace local_ezglobe;
 
+/**
+ * Represents a Moodle course wrapper with checks for restrictions.
+ */
 class course {
-    
+
+    /** @var object|null Course record. */
     protected $record = null;
-    protected $idOrShortname;
-       
-    function __construct($idOrShortname) {
-        $this->idOrShortname = $idOrShortname;
-        if (is_numeric($idOrShortname)) $this->record = database::get("course", $idOrShortname, "id");
-        else $this->record = database::get("course", $idOrShortname, "shortname");
+
+    /** @var int|string Course id or shortname used to load record. */
+    protected $idorshortname;
+
+    /**
+     * Constructor.
+     *
+     * @param int|string $idorshortname Course id or shortname.
+     */
+    public function __construct($idorshortname) {
+        $this->idorshortname = $idorshortname;
+
+        if (is_numeric($idorshortname)) {
+            $this->record = database::get("course", $idorshortname, "id");
+        } else {
+            $this->record = database::get("course", $idorshortname, "shortname");
+        }
     }
 
-    function __get($name) {
-        if (isset($this->record->$name)) return $this->record->$name;
-        else return null;
+    /**
+     * Magic getter to access record properties.
+     *
+     * @param string $name Field name.
+     * @return mixed|null
+     */
+    public function __get($name) {
+        if (isset($this->record->$name)) {
+            return $this->record->$name;
+        } else {
+            return null;
+        }
     }
-    
-    function get() {
+
+    /**
+     * Return the course record.
+     *
+     * @return object|null
+     */
+    public function get() {
         return $this->record;
     }
-   
-    function is() {
-        return ! empty($this->record);
+
+    /**
+     * Check if the course exists.
+     *
+     * @return bool
+     */
+    public function is(): bool {
+        return !empty($this->record);
     }
-    
-    function allowed() {
-        if ( ! $this->is()) return false;
-        if ( ! $this->checkIfInList("allowed_courses")) return false;
-        if ( $this->checkIfInList("restricted_courses", false)) return false;
+
+    /**
+     * Check if the course is allowed according to plugin config.
+     *
+     * @return bool
+     */
+    public function allowed(): bool {
+        if (!$this->is()) {
+            return false;
+        }
+        if (!$this->check_in_list("allowed_courses")) {
+            return false;
+        }
+        if ($this->check_in_list("restricted_courses", false)) {
+            return false;
+        }
         return true;
-        
     }
-    
-    protected function checkIfInList($name, $emptyIsYes = true) {
-        if (empty($this->record)) return false;
+
+    /**
+     * Check if the course is in a configured list.
+     *
+     * @param string $name Config setting name.
+     * @param bool $emptyisyes Whether empty config means "allowed".
+     * @return bool
+     */
+    protected function check_in_list(string $name, bool $emptyisyes = true): bool {
+        if (empty($this->record)) {
+            return false;
+        }
+
         $config = get_config("local_ezglobe", $name);
         $config = str_replace(",", "\n", $config);
+
         $empty = true;
-        foreach(explode("\n", $config) as $course) {
+        foreach (explode("\n", $config) as $course) {
             $course = trim($course);
-            if (empty($course)) continue;
+            if (empty($course)) {
+                continue;
+            }
             $empty = false;
-            if (is_numeric($course) and $course == $this->record->id) return true;
-            if (is_string($course) and $course == $this->record->shortname) return true;
-        }  
-        if ($emptyIsYes) return $empty;
-        else return ! $empty;
+
+            if (is_numeric($course) && (int)$course === (int)$this->record->id) {
+                return true;
+            }
+            if (is_string($course) && $course === $this->record->shortname) {
+                return true;
+            }
+        }
+
+        if ($emptyisyes) {
+            return $empty;
+        } else {
+            return !$empty;
+        }
     }
-        
 }

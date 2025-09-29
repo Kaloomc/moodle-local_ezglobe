@@ -15,9 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Class to manage the entity "course"
+ * Entity class for Moodle courses.
  *
  * @package    local_ezglobe
+ * @subpackage entities
  * @copyright  2025 CBCD EURL & EzGlobe
  * @author     Christophe Blanchot <cblanchot@cbcd.fr>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -25,20 +26,42 @@
 
 namespace local_ezglobe\entities;
 
-class course extends \local_ezglobe\entity {
-    
-    protected $mainTable = "course";       // Table name
-    
-    protected function defineFields() {
-        $this->addField("courseid:id")->onlyGet()->toCheck();
-        $this->addField("shortname")->onlyGet()->toCheck();
-        $this->addFields("fullname", "summary");
-        $this->addEntitiesFromTable("sections", "section", "course_sections", ["course" => "id" ], "id")
-                ->onlyGet();
+use local_ezglobe\entity;
 
+/**
+ * Represents a Moodle course entity.
+ */
+class course extends entity {
+
+    /**
+     * The main DB table for the course entity.
+     *
+     * @var string
+     */
+    protected $main_table = 'course';
+
+    /**
+     * Define the fields and related entities for the course.
+     *
+     * @return void
+     */
+    protected function define_fields(): void {
+        $this->addField('courseid:id')
+            ->onlyGet()
+            ->toCheck();
+
+        $this->addField('shortname')
+            ->onlyGet()
+            ->toCheck();
+
+        $this->addFields('fullname', 'summary');
+
+        $this->addEntitiesFromTable(
+            'sections',
+            'section',
+            'course_sections',
+            ['course' => 'id'],
+            'id'
+        )->onlyGet();
     }
-
-    
 }
-
-

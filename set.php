@@ -14,14 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/*
+/**
+ * Provides API endpoint to inject translated contents into Moodle.
+ *
  * @package    local_ezglobe
  * @copyright  2025 CBCD EURL & EzGlobe
  * @author     Christophe Blanchot <cblanchot@cbcd.fr>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-
 
 define('AJAX_SCRIPT', true);
 define('WS_SERVER', false);
@@ -39,10 +39,10 @@ $user = get_admin();
 $parameters = local_ezglobe_get_parameters();
 if ($parameters === false) {
     local_ezglobe_return( api::error(api::syntaxerror, "Syntax error") );
-    exit;    
+    exit; 
 }
 
-$param = local_ezglobe_get_parameters();        // Directly exit if not correct
+$param = local_ezglobe_get_parameters();        // Directly exit if not correct.
 
 $api = new \local_ezglobe\api_set($param);
 local_ezglobe_return($api->process());
