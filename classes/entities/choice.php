@@ -38,7 +38,7 @@ class choice extends entity {
      *
      * @var string
      */
-    protected $main_table = 'choice';
+    protected $maintable = 'choice';
 
     /**
      * Define the fields and related entities for the choice activity.

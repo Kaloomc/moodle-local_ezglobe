@@ -38,7 +38,7 @@ class question extends entity {
      *
      * @var string
      */
-    protected $main_table = 'question';
+    protected $maintable = 'question';
 
     /**
      * Define the fields and relationships for the entity.

@@ -38,7 +38,7 @@ class assign extends entity {
      *
      * @var string
      */
-    protected $main_table = 'assign';
+    protected $maintable = 'assign';
 
     /**
      * Define the fields and relationships for the entity.

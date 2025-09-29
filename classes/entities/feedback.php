@@ -38,7 +38,7 @@ class feedback extends entity {
      *
      * @var string
      */
-    protected $main_table = 'feedback';
+    protected $maintable = 'feedback';
 
     /**
      * Define the fields and related entities for the feedback activity.

@@ -38,7 +38,7 @@ class glossary extends entity {
      *
      * @var string
      */
-    protected $main_table = 'glossary';
+    protected $maintable = 'glossary';
 
     /**
      * Define the fields and related entities for glossary.

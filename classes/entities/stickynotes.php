@@ -38,7 +38,7 @@ class stickynotes extends entity {
      *
      * @var string
      */
-    protected $main_table = 'stickynotes';
+    protected $maintable = 'stickynotes';
 
     /**
      * Define the fields and related entities for the stickynotes activity.

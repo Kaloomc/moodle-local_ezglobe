@@ -38,7 +38,7 @@ class page extends entity {
      *
      * @var string
      */
-    protected $main_table = 'page';
+    protected $maintable = 'page';
 
     /**
      * Define the fields and relationships for the entity.

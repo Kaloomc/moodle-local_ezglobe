@@ -38,7 +38,7 @@ class tag extends entity {
      *
      * @var string
      */
-    protected $main_table = 'tag';
+    protected $maintable = 'tag';
 
     /**
      * Define the fields for the tag entity.

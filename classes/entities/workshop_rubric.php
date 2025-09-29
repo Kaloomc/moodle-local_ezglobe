@@ -38,7 +38,7 @@ class workshop_rubric extends entity {
      *
      * @var string
      */
-    protected $main_table = 'workshopform_rubric';
+    protected $maintable = 'workshopform_rubric';
 
     /**
      * Define the fields and related entities for the workshop rubric.

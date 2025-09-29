@@ -38,7 +38,7 @@ class wordcloud extends entity {
      *
      * @var string
      */
-    protected $main_table = 'wordcloud';
+    protected $maintable = 'wordcloud';
 
     /**
      * Define the fields and related entities for the wordcloud.

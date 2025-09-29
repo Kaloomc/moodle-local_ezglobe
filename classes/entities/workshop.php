@@ -38,7 +38,7 @@ class workshop extends entity {
      *
      * @var string
      */
-    protected $main_table = 'workshop';
+    protected $maintable = 'workshop';
 
     /**
      * Define the fields and related entities for workshop.

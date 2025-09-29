@@ -38,7 +38,7 @@ class lesson extends entity {
      *
      * @var string
      */
-    protected $main_table = 'lesson';
+    protected $maintable = 'lesson';
 
     /**
      * Define the fields and relationships for this entity.

@@ -38,7 +38,7 @@ class questionnaire_question extends entity {
      *
      * @var string
      */
-    protected $main_table = 'questionnaire_question';
+    protected $maintable = 'questionnaire_question';
 
     /**
      * Define the fields and related entities.

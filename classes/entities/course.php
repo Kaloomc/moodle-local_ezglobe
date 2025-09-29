@@ -38,7 +38,7 @@ class course extends entity {
      *
      * @var string
      */
-    protected $main_table = 'course';
+    protected $maintable = 'course';
 
     /**
      * Define the fields and related entities for the course.

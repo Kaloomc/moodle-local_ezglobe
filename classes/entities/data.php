@@ -38,7 +38,7 @@ class data extends entity {
      *
      * @var string
      */
-    protected $main_table = 'data';
+    protected $maintable = 'data';
 
     /**
      * Define the fields and relationships for the entity.

@@ -38,7 +38,7 @@ class questionnaire_section extends entity {
      *
      * @var string
      */
-    protected $main_table = 'questionnaire_fb_sections';
+    protected $maintable = 'questionnaire_fb_sections';
 
     /**
      * Define the fields and related entities for a questionnaire section.

@@ -38,7 +38,7 @@ class book extends entity {
      *
      * @var string
      */
-    protected $main_table = 'book';
+    protected $maintable = 'book';
 
     /**
      * Define the fields and related entities for the book.

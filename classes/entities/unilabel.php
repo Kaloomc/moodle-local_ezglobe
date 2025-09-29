@@ -40,7 +40,7 @@ class unilabel extends entity {
      *
      * @var string
      */
-    protected $main_table = 'unilabel';
+    protected $maintable = 'unilabel';
 
     /**
      * Define the fields and relationships for the entity.

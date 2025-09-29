@@ -38,7 +38,7 @@ class section extends entity {
      *
      * @var string
      */
-    protected $main_table = 'course_sections';
+    protected $maintable = 'course_sections';
 
     /**
      * Define the fields and related entities for the course section.
