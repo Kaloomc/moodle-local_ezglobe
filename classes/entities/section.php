@@ -50,9 +50,9 @@ class section extends entity {
 
         $modules = [];
         foreach (explode(',', $this->record('sequence')) as $cmid) {
-            $module_name = $this->getModuleName($cmid);
-            if (!empty($module_name)) {
-                $modules[$cmid] = $module_name;
+            $modulename = $this->getModuleName($cmid);
+            if (!empty($modulename)) {
+                $modules[$cmid] = $modulename;
             }
         }
 

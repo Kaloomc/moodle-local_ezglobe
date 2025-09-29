@@ -38,7 +38,7 @@ class board extends entity {
      *
      * @var string
      */
-    protected $main_table = 'board';
+    protected $maintable = 'board';
 
     /**
      * Define the fields and related entities for the board.

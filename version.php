@@ -29,4 +29,4 @@ defined('MOODLE_INTERNAL') || die();
 $plugin->component = 'local_ezglobe';
 $plugin->release = '1.2';
 $plugin->version = 2025022300;
-$plugin->requires = 2024100700;     // Moodle 4.0+
+$plugin->requires = 2024100700;     // Moodle 4.0+.
