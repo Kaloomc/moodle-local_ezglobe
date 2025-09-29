@@ -181,16 +181,16 @@ class api_get extends api {
                 continue;
             }
 
-            $this->data->$id = ["name" => $categ->name];
+            $this->data->{$id} = ["name" => $categ->name];
             $context = database::get("context", $categ->contextid);
 
             if (empty($context) || empty($contexts[$context->contextlevel])) {
                 continue;
             }
 
-            $this->data->$id["context"] = $contexts[$context->contextlevel];
+            $this->data->{$id}["context"] = $contexts[$context->contextlevel];
             if ($context->contextlevel != 10) {
-                $this->data->$id["instanceid"] = $context->instanceid;
+                $this->data->{$id}["instanceid"] = $context->instanceid;
             }
         }
 
@@ -214,11 +214,11 @@ class api_get extends api {
 
         $questions = new stdClass();
         foreach (database::get_all("question_bank_entries", $this->param->categoryid, "questioncategoryid") as $questionbank) {
-            $sql = "SELECT {question}.* 
-                      FROM {question} 
-                 LEFT JOIN {question_versions} 
+            $sql = "SELECT {question}.*
+                      FROM {question}
+                 LEFT JOIN {question_versions}
                         ON {question_versions}.questionid = {question}.id
-                     WHERE questionbankentryid = :qb ";
+                     WHERE questionbankentryid = :qb";
             if ($last) {
                 $sql .= " ORDER BY version DESC LIMIT 1";
             }
@@ -226,7 +226,7 @@ class api_get extends api {
             foreach (database::load_multiple($sql, ["qb" => $questionbank->id]) as $record) {
                 $question = new \local_ezglobe\entities\question($record);
                 $qid = $record->id;
-                $questions->$qid = $question->get();
+                $questions->{$qid} = $question->get();
             }
         }
 
@@ -251,7 +251,7 @@ class api_get extends api {
         foreach (database::get_all("tag") as $tag) {
             $id = $tag->id;
             $entitytag = new \local_ezglobe\entities\tag($tag);
-            $this->data->$id = $entitytag->get();
+            $this->data->{$id} = $entitytag->get();
         }
 
         return (object) ["code" => "ok", "data" => $this->data];

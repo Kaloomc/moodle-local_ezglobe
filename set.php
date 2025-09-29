@@ -39,7 +39,7 @@ $user = get_admin();
 $parameters = local_ezglobe_get_parameters();
 if ($parameters === false) {
     local_ezglobe_return( api::error(api::syntaxerror, "Syntax error") );
-    exit; 
+    exit;
 }
 
 $param = local_ezglobe_get_parameters();        // Directly exit if not correct.

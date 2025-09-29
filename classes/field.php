@@ -115,25 +115,41 @@ class field {
         }
     }
 
-    /** @return self */
+    /**
+     * Restrict this field to info mode (not updatable).
+     *
+     * @return self
+     */
     public function onlyinfo(): self {
         $this->onlyinfo = true;
         return $this;
     }
 
-    /** @return self */
+    /**
+     * Restrict this field to get mode (read-only).
+     *
+     * @return self
+     */
     public function onlyget(): self {
         $this->onlyget = true;
         return $this;
     }
 
-    /** @return self */
+    /**
+     * Mark this field as requiring verification checks.
+     *
+     * @return self
+     */
     public function tocheck(): self {
         $this->tocheck = true;
         return $this;
     }
 
-    /** @return self */
+    /**
+     * Mark this field as linked to the gradebook.
+     *
+     * @return self
+     */
     public function gradebook(): self {
         $this->gradebook = true;
         return $this;

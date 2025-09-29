@@ -16,7 +16,7 @@
 
 /**
  * Provides API endpoint to extract contents for translation.
- * 
+ *
  * @package    local_ezglobe
  * @copyright  2025 CBCD EURL & EzGlobe
  * @author     Christophe Blanchot <cblanchot@cbcd.fr>

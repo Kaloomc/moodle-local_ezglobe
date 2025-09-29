@@ -23,37 +23,79 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+// phpcs:ignore moodle.Files.MoodleInternal.MoodleInternalNotNeeded
 defined('MOODLE_INTERNAL') || die();
 
-function local_ezglobe_return($answer) {            
-    ////ob_get_clean();
-    ////header('content-type:application/json');
-    if (empty($answer)) $answer = [ "code" => "ko"];
-    else if (is_string($answer)) $answer = [ "code" => "ko", "msg" => $answer];
-    else if (! is_array($answer) and ! is_object($answer)) $answer = [ "code" => "ko"];
-    if (is_array($answer) and empty($answer["code"])) $answer["code"] == "ok";
-    if (is_object($answer) and empty($answer->code)) $answer->code == "ok";
+/**
+ * Outputs a JSON-encoded response to the client.
+ *
+ * @param mixed $answer Response data (string, array, object or null).
+ * @return void
+ */
+function local_ezglobe_return($answer) {
+    // Clear any buffered output (optional).
+    // ob_get_clean();
+
+    // Set content type to JSON (optional).
+    // header('Content-Type: application/json');
+
+    if (empty($answer)) {
+        $answer = ['code' => 'ko'];
+    } elseif (is_string($answer)) {
+        $answer = ['code' => 'ko', 'msg' => $answer];
+    } elseif (!is_array($answer) && !is_object($answer)) {
+        $answer = ['code' => 'ko'];
+    }
+
+    if (is_array($answer) && empty($answer['code'])) {
+        $answer['code'] = 'ok';
+    }
+
+    if (is_object($answer) && empty($answer->code)) {
+        $answer->code = 'ok';
+    }
+
     echo json_encode($answer);
 }
 
-function local_ezglobe_error($code = "error", $message = "") {            
-    ////ob_get_clean();
-    ///header('content-type:application/json');
-    $answer = [ "code" => $code ];
-    if ( !empty($message)) $answer["message"] == $message;
+/**
+ * Outputs a JSON-encoded error response.
+ *
+ * @param string $code Error code.
+ * @param string $message Optional error message.
+ * @return void
+ */
+function local_ezglobe_error($code = 'error', $message = '') {
+    // Clear any buffered output (optional).
+    // ob_get_clean();
+
+    // Set content type to JSON (optional).
+    // header('Content-Type: application/json');
+
+    $answer = ['code' => $code];
+
+    if (!empty($message)) {
+        $answer['message'] = $message;
+    }
+
     echo json_encode($answer);
 }
 
-function local_ezglobe_get_parameters($alwaysReturn = false) {
-    // Get parameters (json) from php://input
-    // Exit if not correct if not $alwaysReturn
-    $request = file_get_contents("php://input");
+/**
+ * Retrieves parameters from php://input as JSON.
+ *
+ * @param bool $alwaysreturn If true, returns request even if invalid.
+ * @return mixed The decoded request object or false.
+ */
+function local_ezglobe_get_parameters($alwaysreturn = false) {
+    // Get parameters (json) from php://input.
+    $request = file_get_contents('php://input');
     $request = json_decode($request);
 
-    if ($request === false and ! alwaysReturn) {
-        local_ezglobe_error( "error", "Parameters format is incorrect");
+    if ($request === false && !$alwaysreturn) {
+        local_ezglobe_error('error', 'Parameters format is incorrect');
         exit;
-    }  
+    }
+
     return $request;
 }
-
