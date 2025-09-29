@@ -45,7 +45,7 @@ class database {
      * @param string $table Table name.
      * @return string
      */
-    public static function idname(string $table): string {
+    public static function id_name(string $table): string {
         if (isset(static::$idnames[$table])) {
             return static::$idnames[$table];
         }
@@ -61,10 +61,10 @@ class database {
      * @return object|null
      */
     public static function get(string $table, $value, ?string $name = null) {
-        if ($name === null) {
-            $name = static::idname($table);
+        if (is_null($name)) {
+            $name = static::id_name($table);
         }
-        return static::loadOne("SELECT * FROM {{$table}} WHERE {$name} = :{$name}", [$name => $value]);
+        return static::load_one("SELECT * FROM {{$table}} WHERE `$name` = :$name", [$name => $value]);
     }
 
     /**
@@ -75,31 +75,34 @@ class database {
      * @param string|null $name Field name (default id field).
      * @return array<int,object>
      */
-    public static function getAll(string $table, $value = null, ?string $name = null): array {
-        if ($name === null) {
-            $name = static::idname($table);
+    public static function get_all(string $table, $value = null, ?string $name = null): array {
+        if (is_null($name)) {
+            $name = static::id_name($table);
         }
-        if ($value === null) {
-            return static::loadMultiple("SELECT * FROM {{$table}}");
+        if (is_null($value)) {
+            return static::load_multiple("SELECT * FROM {{$table}}");
         }
-        return static::loadMultiple("SELECT * FROM {{$table}} WHERE {$name} = :{$name}", [$name => $value]);
+        return static::load_multiple("SELECT * FROM {{$table}} WHERE `$name` = :$name", [$name => $value]);
     }
 
     /**
      * Load one record using SQL.
      *
      * @param string $sql SQL query.
-     * @param array $params Parameters.
+     * @param array $param Parameters.
      * @return object|null
      */
-    public static function loadOne(string $sql, array $params = []) {
+    public static function load_one(string $sql, array $param = []) {
         global $DB;
         try {
-            $result = $DB->get_record_sql($sql, $params);
-            return $result ?: null;
+            $result = $DB->get_record_sql($sql, $param);
+            if (empty($result)) {
+                return null;
+            }
+            return $result;
         } catch (\dml_exception $ex) {
             return null;
-        } catch (\Throwable $ex) {
+        } catch (\Exception $ex) {
             return null;
         }
     }
@@ -108,16 +111,17 @@ class database {
      * Load multiple records using SQL.
      *
      * @param string $sql SQL query.
-     * @param array $params Parameters.
+     * @param array $param Parameters.
      * @return array<int,object>
      */
-    public static function loadMultiple(string $sql, array $params = []): array {
+    public static function load_multiple(string $sql, array $param = []): array {
         global $DB;
         try {
-            return (array) $DB->get_records_sql($sql, $params);
+            $result = $DB->get_records_sql($sql, $param);
+            return (array) $result;
         } catch (\dml_exception $ex) {
             return [];
-        } catch (\Throwable $ex) {
+        } catch (\Exception $ex) {
             return [];
         }
     }
@@ -127,24 +131,28 @@ class database {
      *
      * @param string $table Table name.
      * @param int $id Record id.
-     * @param string $fieldName Field name.
-     * @param mixed $newValue New value.
+     * @param string $fieldname Field name.
+     * @param mixed $newvalue New value.
      * @return bool Success.
      */
-    public static function update(string $table, int $id, string $fieldName, $newValue): bool {
+    public static function update(string $table, int $id, string $fieldname, $newvalue): bool {
         global $DB;
 
         $object = new \stdClass();
-        $idname = static::idname($table);
+        $idname = static::id_name($table);
         $object->$idname = $id;
-        $object->$fieldName = $newValue;
+        $object->$fieldname = $newvalue;
 
         try {
             $DB->update_record($table, $object);
             return true;
+        } catch (\coding_exception $e) {
+            return false;
+        } catch (\dml_write_exception $e) {
+            return false;
         } catch (\dml_exception $ex) {
             return false;
-        } catch (\Throwable $ex) {
+        } catch (\Exception $ex) {
             return false;
         }
     }

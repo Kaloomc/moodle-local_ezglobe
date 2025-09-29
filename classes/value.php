@@ -30,39 +30,19 @@ namespace local_ezglobe;
  */
 class value {
 
-    /**
-     * The stored value.
-     *
-     * @var mixed
-     */
+    /** @var mixed The stored value. */
     protected $value;
 
-    /**
-     * Whether the field is for information only (not returned).
-     *
-     * @var bool
-     */
-    protected $onlyInfo = false;
+    /** @var bool Whether the field is for information only (not returned). */
+    protected $onlyinfo = false;
 
-    /**
-     * Whether the field is only allowed in GET API.
-     *
-     * @var bool
-     */
-    protected $onlyGet = false;
+    /** @var bool Whether the field is only allowed in GET API. */
+    protected $onlyget = false;
 
-    /**
-     * Whether the field should be checked specially.
-     *
-     * @var bool
-     */
-    protected $toCheck = false;
+    /** @var bool Whether the field should be checked specially. */
+    protected $tocheck = false;
 
-    /**
-     * Error status of the field.
-     *
-     * @var string
-     */
+    /** @var string Error status of the field. */
     protected $error = 'ok';
 
     /**
@@ -79,8 +59,8 @@ class value {
      *
      * @return self
      */
-    public function onlyInfo(): self {
-        $this->onlyInfo = true;
+    public function only_info(): self {
+        $this->onlyinfo = true;
         return $this;
     }
 
@@ -89,8 +69,8 @@ class value {
      *
      * @return self
      */
-    public function onlyGet(): self {
-        $this->onlyGet = true;
+    public function only_get(): self {
+        $this->onlyget = true;
         return $this;
     }
 
@@ -99,8 +79,8 @@ class value {
      *
      * @return self
      */
-    public function toCheck(): self {
-        $this->toCheck = true;
+    public function to_check(): self {
+        $this->tocheck = true;
         return $this;
     }
 
@@ -110,10 +90,10 @@ class value {
      * @return mixed|null
      */
     public function get() {
-        if ($this->onlyInfo) {
+        if ($this->onlyinfo) {
             return null;
         }
-        if ($this->value === 0 || $this->value === "0") {
+        if ($this->value === 0 || $this->value === '0') {
             return 0;
         }
         if (empty($this->value)) {
@@ -125,11 +105,11 @@ class value {
     /**
      * Attempt to update the value (not allowed).
      *
-     * @param mixed $newValue New value.
+     * @param mixed $newvalue New value.
      * @param mixed $previous Previous value (optional).
      * @return void
      */
-    public function update($newValue, $previous = ''): void {
+    public function update($newvalue, $previous = ''): void {
         // Simple values cannot be updated.
         $this->error = 'notfound';
     }
@@ -139,7 +119,7 @@ class value {
      *
      * @return string|null
      */
-    public function getErrors(): ?string {
+    public function get_errors(): ?string {
         if ($this->error !== 'ok') {
             return $this->error;
         }
