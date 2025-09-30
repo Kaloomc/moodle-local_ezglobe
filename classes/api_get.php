@@ -17,13 +17,13 @@
 /**
  * API class to handle "get" commands.
  *
- * @package    local_ezglobe
- * @copyright  2025 CBCD EURL & EzGlobe
+ * @package    local_ezxlate
+ * @copyright  2025 CBCD EURL & Ezxlate
  * @author     Christophe Blanchot <cblanchot@cbcd.fr>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace local_ezglobe;
+namespace local_ezxlate;
 
 use DateTime;
 use stdClass;
@@ -100,7 +100,7 @@ class api_get extends api {
             return $this->error("restricted");
         }
 
-        $entitycourse = new \local_ezglobe\entities\course($course->get());
+        $entitycourse = new \local_ezxlate\entities\course($course->get());
         $this->data = $entitycourse->get();
 
         return (object) ["code" => "ok", "data" => $this->data];
@@ -138,7 +138,7 @@ class api_get extends api {
             "cmid" => $module->id,
         ];
 
-        $classname = "\\local_ezglobe\\entities\\" . entity::module_name($module->module);
+        $classname = "\\local_ezxlate\\entities\\" . entity::module_name($module->module);
         if (class_exists($classname)) {
             $module = new $classname($module->instance, null, [], $infosfields);
         } else {
@@ -160,7 +160,7 @@ class api_get extends api {
      * @return object Result object.
      */
     protected function do_questioncategories(): object {
-        if (get_config("local_ezglobe", "questions") == 0) {
+        if (get_config("local_ezxlate", "questions") == 0) {
             return $this->error("restricted");
         }
 
@@ -203,7 +203,7 @@ class api_get extends api {
      * @return object Result object.
      */
     protected function do_questions(): object {
-        if (get_config("local_ezglobe", "questions") == 0) {
+        if (get_config("local_ezxlate", "questions") == 0) {
             return $this->error("restricted");
         }
         if (empty($this->param->categoryid)) {
@@ -224,7 +224,7 @@ class api_get extends api {
             }
 
             foreach (database::load_multiple($sql, ["qb" => $questionbank->id]) as $record) {
-                $question = new \local_ezglobe\entities\question($record);
+                $question = new \local_ezxlate\entities\question($record);
                 $qid = $record->id;
                 $questions->{$qid} = $question->get();
             }
@@ -244,13 +244,13 @@ class api_get extends api {
      * @return object Result object.
      */
     protected function do_tags(): object {
-        if (get_config("local_ezglobe", "tags") == 0) {
+        if (get_config("local_ezxlate", "tags") == 0) {
             return $this->error("restricted");
         }
 
         foreach (database::get_all("tag") as $tag) {
             $id = $tag->id;
-            $entitytag = new \local_ezglobe\entities\tag($tag);
+            $entitytag = new \local_ezxlate\entities\tag($tag);
             $this->data->{$id} = $entitytag->get();
         }
 

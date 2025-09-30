@@ -17,13 +17,13 @@
 /**
  * Class to manage entities lists.
  *
- * @package    local_ezglobe
- * @copyright  2025 CBCD EURL & EzGlobe
+ * @package    local_ezxlate
+ * @copyright  2025 CBCD EURL & Ezxlate
  * @author     Christophe Blanchot <cblanchot@cbcd.fr>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace local_ezglobe;
+namespace local_ezxlate;
 
 /**
  * Wrapper for handling multiple entities and their errors.
@@ -59,9 +59,9 @@ class entities {
         if (is_array($entityname)) {
             $table = array_shift($entityname);
             $fields = $entityname;
-            $entity = "\\local_ezglobe\\entity";
+            $entity = "\\local_ezxlate\\entity";
         } else {
-            $entity = '\\local_ezglobe\\entities\\' . $entityname;
+            $entity = '\\local_ezxlate\\entities\\' . $entityname;
             $table = null;
             $fields = [];
         }

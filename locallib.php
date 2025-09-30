@@ -15,10 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Utility functions for the Ezglobe local plugin.
+ * Utility functions for the Ezxlate local plugin.
  *
- * @package    local_ezglobe
- * @copyright  2025 CBCD EURL & EzGlobe
+ * @package    local_ezxlate
+ * @copyright  2025 CBCD EURL & Ezxlate
  * @author     Christophe Blanchot <cblanchot@cbcd.fr>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -32,7 +32,7 @@ defined('MOODLE_INTERNAL') || die();
  * @param mixed $answer Response data (string, array, object or null).
  * @return void
  */
-function local_ezglobe_return($answer) {
+function local_ezxlate_return($answer) {
     // Clear any buffered output (optional).
     // ob_get_clean();.
 
@@ -65,7 +65,7 @@ function local_ezglobe_return($answer) {
  * @param string $message Optional error message.
  * @return void
  */
-function local_ezglobe_error($code = 'error', $message = '') {
+function local_ezxlate_error($code = 'error', $message = '') {
     // Clear any buffered output (optional).
     // ob_get_clean();.
 
@@ -87,13 +87,13 @@ function local_ezglobe_error($code = 'error', $message = '') {
  * @param bool $alwaysreturn If true, returns request even if invalid.
  * @return mixed The decoded request object or false.
  */
-function local_ezglobe_get_parameters($alwaysreturn = false) {
+function local_ezxlate_get_parameters($alwaysreturn = false) {
     // Get parameters (json) from php://input.
     $request = file_get_contents('php://input');
     $request = json_decode($request);
 
     if ($request === false && !$alwaysreturn) {
-        local_ezglobe_error('error', 'Parameters format is incorrect');
+        local_ezxlate_error('error', 'Parameters format is incorrect');
         exit;
     }
 

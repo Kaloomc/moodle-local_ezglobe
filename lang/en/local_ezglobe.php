@@ -17,8 +17,8 @@
 /**
  * Plugin strings are defined here.
  *
- * @package    local_ezglobe
- * @copyright  2025 CBCD EURL & EzGlobe
+ * @package    local_ezxlate
+ * @copyright  2025 CBCD EURL & Ezxlate
  * @author     Christophe Blanchot <cblanchot@cbcd.fr>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -54,5 +54,5 @@ $string['config:restricted_courses:desc'] = "Enter the list of courses the API c
 $string['config:restricted_courses:label'] = 'Restricted courses';
 $string['config:tags:desc'] = "You can allow or block exporting and importing texts of tags";
 $string['config:tags:label'] = 'Tags management';
-$string['config:title'] = 'ezGlobe plugin configuration';
-$string['pluginname'] = 'ezGlobe : API to edit texts';
+$string['config:title'] = 'ezxlate plugin configuration';
+$string['pluginname'] = 'ezxlate : API to edit texts';

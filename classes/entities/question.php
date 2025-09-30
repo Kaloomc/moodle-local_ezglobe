@@ -17,16 +17,16 @@
 /**
  * Entity class for the "question" activity.
  *
- * @package    local_ezglobe
+ * @package    local_ezxlate
  * @subpackage entities
- * @copyright  2025 CBCD EURL & EzGlobe
+ * @copyright  2025 CBCD EURL & Ezxlate
  * @author     Christophe Blanchot <cblanchot@cbcd.fr>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace local_ezglobe\entities;
+namespace local_ezxlate\entities;
 
-use local_ezglobe\entity;
+use local_ezxlate\entity;
 
 /**
  * Represents a question entity.

@@ -17,13 +17,13 @@
 /**
  * Generic API management class.
  *
- * @package    local_ezglobe
- * @copyright  2025 CBCD EURL & EzGlobe
+ * @package    local_ezxlate
+ * @copyright  2025 CBCD EURL & Ezxlate
  * @author     Christophe Blanchot <cblanchot@cbcd.fr>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace local_ezglobe;
+namespace local_ezxlate;
 
 use DateTime;
 use stdClass;
@@ -153,19 +153,19 @@ class api {
      * @return string Error message or empty string if valid.
      */
     protected function check_authentification(): string {
-        if (get_config('local_ezglobe', 'open') != 1) {
+        if (get_config('local_ezxlate', 'open') != 1) {
             return 'API disabled';
         }
-        if (empty(get_config('local_ezglobe', 'key'))) {
+        if (empty(get_config('local_ezxlate', 'key'))) {
             return 'Empty key, API disabled';
         }
-        if (strlen(get_config('local_ezglobe', 'key')) < 10) {
+        if (strlen(get_config('local_ezxlate', 'key')) < 10) {
             return 'Key is too short, API disabled';
         }
         if (empty($this->param->key)) {
             return 'Key not provided in the request';
         }
-        if ($this->param->key != get_config('local_ezglobe', 'key')) {
+        if ($this->param->key != get_config('local_ezxlate', 'key')) {
             return 'Authentication failed';
         }
         if ($this->iprestricted()) {
@@ -181,7 +181,7 @@ class api {
      */
     protected function iprestricted(): bool {
         $ips = [];
-        foreach (explode("\n", str_replace(',', "\n", get_config('local_ezglobe', 'ips'))) as $ip) {
+        foreach (explode("\n", str_replace(',', "\n", get_config('local_ezxlate', 'ips'))) as $ip) {
             $ip = strtolower(trim($ip));
             if (!empty($ip)) {
                 $ips[] = $ip;
@@ -207,7 +207,7 @@ class api {
      */
     public function version(): ?int {
         global $CFG;
-        $pluginpath = $CFG->dirroot . '/local/ezglobe/version.php';
+        $pluginpath = $CFG->dirroot . '/local/ezxlate/version.php';
         if (file_exists($pluginpath)) {
             $plugin = new stdClass();
             include($pluginpath);

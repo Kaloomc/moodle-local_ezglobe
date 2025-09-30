@@ -17,13 +17,13 @@
 /**
  * Class to check courses.
  *
- * @package    local_ezglobe
- * @copyright  2025 CBCD EURL & EzGlobe
+ * @package    local_ezxlate
+ * @copyright  2025 CBCD EURL & Ezxlate
  * @author     Christophe Blanchot <cblanchot@cbcd.fr>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace local_ezglobe;
+namespace local_ezxlate;
 
 /**
  * Represents a Moodle course wrapper with checks for restrictions.
@@ -113,7 +113,7 @@ class course {
             return false;
         }
 
-        $config = get_config("local_ezglobe", $name);
+        $config = get_config("local_ezxlate", $name);
         $config = str_replace(",", "\n", $config);
 
         $empty = true;

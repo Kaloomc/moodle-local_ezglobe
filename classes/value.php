@@ -17,13 +17,13 @@
 /**
  * Class to manage entity fields not directly connected to the DB.
  *
- * @package    local_ezglobe
- * @copyright  2025 CBCD EURL & EzGlobe
+ * @package    local_ezxlate
+ * @copyright  2025 CBCD EURL & Ezxlate
  * @author     Christophe Blanchot <cblanchot@cbcd.fr>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace local_ezglobe;
+namespace local_ezxlate;
 
 /**
  * Represents a simple value field for an entity.

@@ -17,13 +17,13 @@
 /**
  * Class to manage fields.
  *
- * @package    local_ezglobe
- * @copyright  2025 CBCD EURL & EzGlobe
+ * @package    local_ezxlate
+ * @copyright  2025 CBCD EURL & Ezxlate
  * @author     Christophe Blanchot <cblanchot@cbcd.fr>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace local_ezglobe;
+namespace local_ezxlate;
 
 /**
  * Represents a field with validation, updates, and gradebook sync.
@@ -74,7 +74,7 @@ class field {
      * @param bool $updategradebook Enable gradebook sync.
      */
     public static function features($previousverification, $extend, $updategradebook): void {
-        if (get_config("local_ezglobe", "previous") == 1 && $previousverification == 1) {
+        if (get_config("local_ezxlate", "previous") == 1 && $previousverification == 1) {
             static::$previousverification = true;
         } else {
             static::$previousverification = false;
@@ -86,7 +86,7 @@ class field {
             static::$extend = false;
         }
 
-        if (get_config("local_ezglobe", "gradebook") == 1 && $updategradebook == 1) {
+        if (get_config("local_ezxlate", "gradebook") == 1 && $updategradebook == 1) {
             static::$updategradebook = true;
         }
     }

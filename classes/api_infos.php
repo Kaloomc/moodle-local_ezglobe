@@ -17,13 +17,13 @@
 /**
  * API class to handle the "infos" command.
  *
- * @package    local_ezglobe
- * @copyright  2025 CBCD EURL & EzGlobe
+ * @package    local_ezxlate
+ * @copyright  2025 CBCD EURL & Ezxlate
  * @author     Christophe Blanchot <cblanchot@cbcd.fr>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace local_ezglobe;
+namespace local_ezxlate;
 
 use DateTime;
 use stdClass;
@@ -50,10 +50,10 @@ class api_infos extends api {
      */
     protected function do(): ?stdClass {
         $this->answer->version = $this->version();
-        $this->answer->previousverification = (get_config('local_ezglobe', 'previous') == 1 ? 1 : 0);
+        $this->answer->previousverification = (get_config('local_ezxlate', 'previous') == 1 ? 1 : 0);
         $this->answer->fieldsextension = (dbinfos::canExtend() ? 1 : 0);
         $this->answer->fieldssize = (dbinfos::canTechnicalExtend() ? 1 : 0);
-        $this->answer->gradebook = (get_config('local_ezglobe', 'gradebook') == 1 ? 1 : 0);
+        $this->answer->gradebook = (get_config('local_ezxlate', 'gradebook') == 1 ? 1 : 0);
 
         return $this->answer;
     }

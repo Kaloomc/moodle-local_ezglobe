@@ -17,13 +17,13 @@
 /**
  * API handler for "set" commands.
  *
- * @package    local_ezglobe
- * @copyright  2025 CBCD EURL & EzGlobe
+ * @package    local_ezxlate
+ * @copyright  2025 CBCD EURL & Ezxlate
  * @author     Christophe Blanchot <cblanchot@cbcd.fr>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace local_ezglobe;
+namespace local_ezxlate;
 
 use DateTime;
 use stdClass;
@@ -150,7 +150,7 @@ class api_set extends api {
             return $this->error("restricted");
         }
 
-        $course = new \local_ezglobe\entities\course($course->get());
+        $course = new \local_ezxlate\entities\course($course->get());
         $this->end($course);
 
         \course_modinfo::purge_course_cache($this->param->courseid);
@@ -187,7 +187,7 @@ class api_set extends api {
             return $this->error("restricted");
         }
 
-        $section = new \local_ezglobe\entities\section($section);
+        $section = new \local_ezxlate\entities\section($section);
         $this->end($section);
 
         \course_modinfo::purge_course_cache($this->param->courseid);
@@ -225,7 +225,7 @@ class api_set extends api {
             return $this->error("notfound", "module is not a " . $this->param->module);
         }
 
-        $class = "\\local_ezglobe\\entities\\" . entity::module_name($module->module);
+        $class = "\\local_ezxlate\\entities\\" . entity::module_name($module->module);
         if (class_exists($class)) {
             $module = new $class($module->instance, null, []);
         } else {
@@ -252,7 +252,7 @@ class api_set extends api {
         if (!isset($this->param->questionid)) {
             return $this->error("error", "questionid must be provided");
         }
-        if (get_config("local_ezglobe", "questions") == 0) {
+        if (get_config("local_ezxlate", "questions") == 0) {
             return $this->error("restricted");
         }
 
@@ -271,7 +271,7 @@ class api_set extends api {
             return $this->error("notfound", "wrong category");
         }
 
-        $question = new \local_ezglobe\entities\question($question);
+        $question = new \local_ezxlate\entities\question($question);
         $this->end($question);
     }
 
@@ -284,7 +284,7 @@ class api_set extends api {
         if (empty($this->param->id)) {
             return $this->error("error", "id must be provided");
         }
-        if (get_config("local_ezglobe", "tags") == 0) {
+        if (get_config("local_ezxlate", "tags") == 0) {
             return $this->error("restricted");
         }
 
@@ -293,7 +293,7 @@ class api_set extends api {
             return $this->error("notfound");
         }
 
-        $tag = new \local_ezglobe\entities\tag($tag);
+        $tag = new \local_ezxlate\entities\tag($tag);
         $this->end($tag);
     }
 }

@@ -15,10 +15,10 @@
 // along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * API EzGlobe translation Process
+ * API Ezxlate translation Process
  *
- * @package    local_ezglobe
- * @copyright  2025 CBCD EURL & EzGlobe
+ * @package    local_ezxlate
+ * @copyright  2025 CBCD EURL & Ezxlate
  * @author     Christophe Blanchot <cblanchot@cbcd.fr>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -26,7 +26,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->component = 'local_ezglobe';
+$plugin->component = 'local_ezxlate';
 $plugin->release = '1.2';
 $plugin->version = 2025022300;
 $plugin->requires = 2024100700;     // Moodle 4.0+.

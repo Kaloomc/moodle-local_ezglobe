@@ -17,13 +17,13 @@
 /**
  * Class to manage database structure (including extending fields).
  *
- * @package    local_ezglobe
- * @copyright  2025 CBCD EURL & EzGlobe
+ * @package    local_ezxlate
+ * @copyright  2025 CBCD EURL & Ezxlate
  * @author     Christophe Blanchot <cblanchot@cbcd.fr>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace local_ezglobe;
+namespace local_ezxlate;
 
 /**
  * Utility class for managing Moodle DB schema extensions.
@@ -49,7 +49,7 @@ class dbinfos {
      */
     public static function canextend(): bool {
         if (is_null(static::$canextend)) {
-            if (get_config("local_ezglobe", "key") == 0) {
+            if (get_config("local_ezxlate", "key") == 0) {
                 static::$canextend = false;
             } else if (!static::cantechnicalextend()) {
                 static::$canextend = false;

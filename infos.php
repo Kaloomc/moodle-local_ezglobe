@@ -17,8 +17,8 @@
 /**
  * Provides API endpoint to retrieve general information.
  *
- * @package    local_ezglobe
- * @copyright  2025 CBCD EURL & EzGlobe
+ * @package    local_ezxlate
+ * @copyright  2025 CBCD EURL & Ezxlate
  * @author     Christophe Blanchot <cblanchot@cbcd.fr>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -35,13 +35,13 @@ require_login();
 $user = get_admin();
 \core\session\manager::set_user($user);
 
-$parameters = local_ezglobe_get_parameters();
+$parameters = local_ezxlate_get_parameters();
 if ($parameters === false) {
-    local_ezglobe_return( api::error(api::syntaxerror, "Syntax error") );
+    local_ezxlate_return( api::error(api::syntaxerror, "Syntax error") );
     exit;
 }
 
-$param = local_ezglobe_get_parameters();        // Directly exit if not correct.
+$param = local_ezxlate_get_parameters();        // Directly exit if not correct.
 
-$api = new \local_ezglobe\api_infos($param);
-local_ezglobe_return($api->process());
+$api = new \local_ezxlate\api_infos($param);
+local_ezxlate_return($api->process());
