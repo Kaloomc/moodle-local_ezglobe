@@ -27,6 +27,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_ezxlate';
-$plugin->release = '1.2';
-$plugin->version = 2025022300;
-$plugin->requires = 2024100700;     // Moodle 4.0+.
+$plugin->version   = 2025022300;
+$plugin->requires  = 2023100900;      // ⇐ 4.3 minimum.
+$plugin->maturity  = MATURITY_ALPHA;
+$plugin->release   = '1.0.0';
