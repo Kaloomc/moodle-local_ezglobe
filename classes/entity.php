@@ -61,13 +61,13 @@ class entity {
     protected static $sections = null;
 
     /**
- * Constructor.
- *
- * @param int|object|array $idorrecord Identifier or DB record.
- * @param string|null $maintable Override main table.
- * @param array $fields Initial fields to add.
- * @param array $infofields Additional fixed info fields.
- */
+     * Constructor.
+     *
+     * @param int|object|array $idorrecord Identifier or DB record.
+     * @param string|null $maintable Override main table.
+     * @param array $fields Initial fields to add.
+     * @param array $infofields Additional fixed info fields.
+     */
     public function __construct($idorrecord, $maintable = null, $fields = [], $infofields = []) {
         if (is_array($idorrecord)) {
             $idorrecord = (object) $idorrecord;
